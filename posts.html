@@ -71,7 +71,7 @@
             overflow: hidden;
         }
         body.dark-theme .ad-container { background: #222; border-color: #444; }
-        .ad-placeholder-text { font-size: 0.8rem; color: #888; }
+        .ad-placeholder-text { font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; }
 
         /* --- АДМИН ПАНЕЛЬ --- */
         .admin-panel { border: 2px solid red; padding: 1rem; margin-bottom: 2rem; background: #fff0f0; display: none; }
@@ -288,24 +288,43 @@
                 if (posts.length === 0) { container.innerHTML = "<p>Пока нет постов.</p>"; return; }
 
                 posts.forEach((post, index) => {
-                    // ВСТАВКА РЕКЛАМЫ (ADSENSE)
+                    // ВСТАВКА РЕКЛАМЫ (Чередование)
                     if (index > 0 && index % 3 === 0) {
                         const adDiv = document.createElement('div');
                         adDiv.className = 'ad-container';
-                        adDiv.innerHTML = `
-                            <div style="text-align:center; width:100%;">
-                                <div class="ad-placeholder-text">Реклама Google AdSense</div>
-                                
-                                <!-- =============================================== -->
-                                <!-- ЗАМЕНИТЕ ЭТУ ЧАСТЬ НА ВАШ КОД ИЗ ADSENSE (ШАГ 3) -->
-                                <!-- <ins class="adsbygoogle" ... ></ins> -->
-                                <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
-                                <div style="color:#aaa; font-size:2rem;">[AD BANNER]</div>
-                                <!-- =============================================== -->
-                                
-                            </div>
-                        `;
+                        
+                        // Если индекс делится на 6 (6, 12, 18...) - ставим Multiplex
+                        // Если нет (3, 9, 15...) - ставим Обычный баннер
+                        if (index % 6 === 0) {
+                            // MULTIPLEX AD (7944668033)
+                            adDiv.innerHTML = `
+                                <div style="text-align:center; width:100%;">
+                                    <div class="ad-placeholder-text">Реклама (Multiplex)</div>
+                                    <ins class="adsbygoogle"
+                                         style="display:block"
+                                         data-ad-format="autorelaxed"
+                                         data-ad-client="ca-pub-3888025467972768"
+                                         data-ad-slot="7944668033"></ins>
+                                </div>
+                            `;
+                        } else {
+                            // STANDARD AD (8379782309)
+                            adDiv.innerHTML = `
+                                <div style="text-align:center; width:100%;">
+                                    <div class="ad-placeholder-text">Реклама Google</div>
+                                    <ins class="adsbygoogle"
+                                         style="display:block"
+                                         data-ad-client="ca-pub-3888025467972768"
+                                         data-ad-slot="8379782309"
+                                         data-ad-format="auto"
+                                         data-full-width-responsive="true"></ins>
+                                </div>
+                            `;
+                        }
+                        
                         container.appendChild(adDiv);
+                        // Запускаем рекламу
+                        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
                     }
 
                     const div = document.createElement('div');
