@@ -64,7 +64,7 @@
             background: #f9f9f9;
             border: 1px dashed #ccc;
             text-align: center;
-            min-height: 100px;
+            min-height: 280px; /* Фиксированная высота, чтобы не прыгало */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -293,24 +293,22 @@
                         const adDiv = document.createElement('div');
                         adDiv.className = 'ad-container';
                         
-                        // Если индекс делится на 6 (6, 12, 18...) - ставим Multiplex
-                        // Если нет (3, 9, 15...) - ставим Обычный баннер
+                        let adHTML = '';
                         if (index % 6 === 0) {
-                            // MULTIPLEX AD (7944668033)
-                            adDiv.innerHTML = `
-                                <div style="text-align:center; width:100%;">
+                            // MULTIPLEX
+                            adHTML = `
+                                <div style="width:100%; text-align:center">
                                     <div class="ad-placeholder-text">Реклама (Multiplex)</div>
                                     <ins class="adsbygoogle"
                                          style="display:block"
                                          data-ad-format="autorelaxed"
                                          data-ad-client="ca-pub-3888025467972768"
                                          data-ad-slot="7944668033"></ins>
-                                </div>
-                            `;
+                                </div>`;
                         } else {
-                            // STANDARD AD (8379782309)
-                            adDiv.innerHTML = `
-                                <div style="text-align:center; width:100%;">
+                            // DISPLAY AD
+                            adHTML = `
+                                <div style="width:100%; text-align:center">
                                     <div class="ad-placeholder-text">Реклама Google</div>
                                     <ins class="adsbygoogle"
                                          style="display:block"
@@ -318,13 +316,14 @@
                                          data-ad-slot="8379782309"
                                          data-ad-format="auto"
                                          data-full-width-responsive="true"></ins>
-                                </div>
-                            `;
+                                </div>`;
                         }
                         
+                        adDiv.innerHTML = adHTML;
                         container.appendChild(adDiv);
-                        // Запускаем рекламу
-                        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+                        
+                        // Безопасный запуск рекламы
+                        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { console.log('Ad push error:', e); }
                     }
 
                     const div = document.createElement('div');
