@@ -12,6 +12,24 @@
             color: black;
             font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
             padding: 1rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Стили темной темы */
+        body.dark-theme {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        body.dark-theme nav { border-color: #e0e0e0; }
+        body.dark-theme nav a { color: #e0e0e0; }
+        body.dark-theme h1 a { color: #e0e0e0; }
+        body.dark-theme h2 { border-bottom-color: #444; }
+        body.dark-theme #theme-toggle {
+            border-color: #e0e0e0;
+            color: #e0e0e0;
+        }
+        body.dark-theme #theme-toggle:hover {
+            background-color: #333;
         }
 
         @media (min-width: 768px) {
@@ -29,6 +47,7 @@
         h1 a {
             text-decoration: none;
             color: black;
+            transition: color 0.3s;
         }
 
         @media (min-width: 768px) {
@@ -42,6 +61,7 @@
             margin-bottom: 2rem;
             display: flex;
             gap: 1.5rem;
+            transition: border-color 0.3s;
         }
 
         nav a {
@@ -50,6 +70,7 @@
             text-decoration: underline;
             text-decoration-thickness: 1px;
             text-underline-offset: 4px;
+            transition: color 0.3s;
         }
 
         nav a:hover {
@@ -74,10 +95,30 @@
             margin-bottom: 1rem;
             border-bottom: 1px solid #ccc;
             padding-bottom: 0.5rem;
+            transition: border-color 0.3s;
+        }
+
+        /* Кнопка */
+        #theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: 1px solid black;
+            color: black;
+            padding: 0.5rem 1rem;
+            font-family: inherit;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        #theme-toggle:hover {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
+    <button id="theme-toggle">☾ Темная</button>
 
     <h1><a href="index.html">Gav.manka</a></h1>
 
@@ -94,5 +135,28 @@
         </p>
     </div>
 
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Проверка сохраненной темы
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-theme');
+            toggleBtn.textContent = '☼ Светлая';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            const isDark = body.classList.contains('dark-theme');
+            
+            if (isDark) {
+                localStorage.setItem('theme', 'dark');
+                toggleBtn.textContent = '☼ Светлая';
+            } else {
+                localStorage.setItem('theme', 'light');
+                toggleBtn.textContent = '☾ Темная';
+            }
+        });
+    </script>
 </body>
 </html>
