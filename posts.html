@@ -6,8 +6,9 @@
     <title>Gav.manka - Посты</title>
     
     <!-- ========================================== -->
-    <!-- СЮДА ВСТАВИТЬ ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
-    <!-- Он выглядит примерно так: <script async src="https://pagead2.googlesyndication.com/..."></script> -->
+    <!-- ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768"
+     crossorigin="anonymous"></script>
     <!-- ========================================== -->
 
     <style>
@@ -63,10 +64,11 @@
             background: #f9f9f9;
             border: 1px dashed #ccc;
             text-align: center;
-            min-height: 100px; /* Чтобы не прыгало */
+            min-height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
         body.dark-theme .ad-container { background: #222; border-color: #444; }
         .ad-placeholder-text { font-size: 0.8rem; color: #888; }
@@ -93,7 +95,7 @@
     <canvas id="snow-canvas"></canvas>
 
     <div class="banner-wrapper">
-        <img src="background.png" alt="Баннер" class="site-banner" onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.innerHTML='<span style=\'font-size:2rem; opacity:0.3;\'>[Gav.manka]</span>';">
+        <img src="background.png" alt="Баннер" class="site-banner" onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='<span style=\'font-size:2rem; opacity:0.3;\'>[Gav.manka]</span>';">
     </div>
 
     <h1><a href="index.html">Gav.manka</a></h1>
@@ -171,7 +173,7 @@
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, doc, deleteDoc, updateDoc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // ВАШ КОНФИГ (Оставьте как есть, он рабочий)
+        // ВАШ КОНФИГ
         const firebaseConfig = {
           apiKey: "AIzaSyBj0O4Td-w4Dm2ii5S2Rg8pvAnzbY1C6Rw",
           authDomain: "gavmanka-879a8.firebaseapp.com",
@@ -268,7 +270,7 @@
             } catch(e) { alert("Ошибка: " + e.message); }
         };
 
-        // --- ЛОГИКА ОТОБРАЖЕНИЯ ПОСТОВ И РЕКЛАМЫ ---
+        // --- ПОСТЫ И РЕКЛАМА ---
         function initPosts() {
             const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -290,12 +292,17 @@
                     if (index > 0 && index % 3 === 0) {
                         const adDiv = document.createElement('div');
                         adDiv.className = 'ad-container';
-                        // В этом месте вы можете вставить реальный код <ins> от AdSense
                         adDiv.innerHTML = `
-                            <div style="text-align:center;">
+                            <div style="text-align:center; width:100%;">
                                 <div class="ad-placeholder-text">Реклама Google AdSense</div>
-                                <!-- ВСТАВЬТЕ СЮДА ВАШ КОД <ins ...> -->
+                                
+                                <!-- =============================================== -->
+                                <!-- ЗАМЕНИТЕ ЭТУ ЧАСТЬ НА ВАШ КОД ИЗ ADSENSE (ШАГ 3) -->
+                                <!-- <ins class="adsbygoogle" ... ></ins> -->
+                                <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
                                 <div style="color:#aaa; font-size:2rem;">[AD BANNER]</div>
+                                <!-- =============================================== -->
+                                
                             </div>
                         `;
                         container.appendChild(adDiv);
