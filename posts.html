@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gav.manka - Посты</title>
+    
+    <!-- ========================================== -->
+    <!-- СЮДА ВСТАВИТЬ ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
+    <!-- Он выглядит примерно так: <script async src="https://pagead2.googlesyndication.com/..."></script> -->
+    <!-- ========================================== -->
+
     <style>
         /* --- СТИЛИ (База) --- */
         body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; }
@@ -49,37 +55,21 @@
         .action-btn { border: none; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; color: white; font-weight: bold; }
         .btn-del { background: red; }
         .btn-pin { background: gold; color: black; }
-        .btn-ban { background: black; }
 
-        /* --- ИВЕНТЫ --- */
-        .event-area { text-align: center; margin: 1rem 0; padding: 1rem; border: 2px dashed #777; background: rgba(0,0,0,0.05); }
-        
-        /* Золотой пост */
-        .gold-style { border-color: #d4af37; background: rgba(255, 215, 0, 0.1); }
-        .gold-btn { 
-            background: linear-gradient(45deg, #ffd700, #ffaa00); border: 2px solid #b8860b; color: #5c4004;
-            font-size: 1.2rem; padding: 0.5rem 2rem; border-radius: 50px; cursor: pointer; 
-            box-shadow: 0 4px 0 #b8860b; transition: transform 0.1s;
+        /* --- РЕКЛАМНЫЙ БЛОК (AdSense Container) --- */
+        .ad-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+            text-align: center;
+            min-height: 100px; /* Чтобы не прыгало */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .gold-btn:active { transform: translateY(4px); box-shadow: none; }
-        .gold-counter { font-size: 2rem; font-weight: bold; color: #d4af37; display: block; margin-top: 0.5rem; }
-
-        /* Русская рулетка */
-        .roulette-style { border-color: #ff0000; background: rgba(50, 0, 0, 0.1); }
-        .roulette-btn {
-            background: #333; border: 2px solid red; color: white;
-            font-size: 1.2rem; padding: 0.5rem 2rem; cursor: pointer;
-            font-family: 'Courier New', monospace; font-weight: bold;
-            transition: all 0.2s;
-        }
-        .roulette-btn:hover { background: red; color: black; }
-        .roulette-btn:active { transform: scale(0.95); }
-
-        /* Flappy Game */
-        .flappy-style { border-color: #4CAF50; background: rgba(0, 100, 0, 0.1); }
-        #flappy-canvas { background: #70c5ce; display: block; margin: 0 auto; border: 2px solid #333; max-width: 100%; }
-        .score-board { margin-top: 1rem; text-align: left; max-height: 150px; overflow-y: auto; font-size: 0.9rem; border-top: 1px solid #ccc; padding-top: 0.5rem; }
-        .score-row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dotted #ccc; }
+        body.dark-theme .ad-container { background: #222; border-color: #444; }
+        .ad-placeholder-text { font-size: 0.8rem; color: #888; }
 
         /* --- АДМИН ПАНЕЛЬ --- */
         .admin-panel { border: 2px solid red; padding: 1rem; margin-bottom: 2rem; background: #fff0f0; display: none; }
@@ -118,7 +108,7 @@
 
     <div class="content">
         
-        <!-- АДМИН ПАНЕЛЬ (Видна только админам) -->
+        <!-- АДМИН ПАНЕЛЬ -->
         <div id="admin-panel" class="admin-panel">
             <h3>Управление (Admin/Mod)</h3>
             <p style="font-size:0.9rem">Назначение прав и наказаний по Email.</p>
@@ -149,28 +139,11 @@
                 </div>
                 <input type="text" id="new-post-title" placeholder="Заголовок темы">
                 <textarea id="new-post-content" rows="3" placeholder="О чем хотите рассказать?"></textarea>
-                
-                <!-- Опции Админа -->
-                <div id="admin-post-options" style="display:none; margin-bottom:1rem; border-top:1px dashed #ccc; padding-top:0.5rem;">
-                    <label style="margin-right:15px; cursor:pointer;">
-                        <input type="radio" name="post-type" value="normal" checked> Обычный
-                    </label>
-                    <label style="margin-right:15px; cursor:pointer; color:goldenrod; font-weight:bold;">
-                        <input type="radio" name="post-type" value="golden"> 🏆 Золотой
-                    </label>
-                    <label style="margin-right:15px; cursor:pointer; color:red; font-weight:bold;">
-                        <input type="radio" name="post-type" value="roulette"> 💀 Рулетка
-                    </label>
-                    <label style="cursor:pointer; color:#4CAF50; font-weight:bold;">
-                        <input type="radio" name="post-type" value="flappy"> 🍆 Flappy P.
-                    </label>
-                </div>
-
                 <button class="btn-primary" onclick="createPost()">Опубликовать</button>
             </div>
 
             <div id="guest-msg" style="text-align:center; padding:1rem; border:1px dashed #777; margin-bottom:1rem;">
-                <a href="auth.html">Войдите</a>, чтобы писать и участвовать в ивентах.
+                <a href="auth.html">Войдите</a>, чтобы писать.
             </div>
 
             <div id="posts-container">
@@ -195,10 +168,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, doc, deleteDoc, updateDoc, setDoc, getDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, doc, deleteDoc, updateDoc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // ВАШ КОНФИГ
+        // ВАШ КОНФИГ (Оставьте как есть, он рабочий)
         const firebaseConfig = {
           apiKey: "AIzaSyBj0O4Td-w4Dm2ii5S2Rg8pvAnzbY1C6Rw",
           authDomain: "gavmanka-879a8.firebaseapp.com",
@@ -214,7 +187,7 @@
         const auth = getAuth(app);
 
         let currentUser = null;
-        let myRole = 'user'; // 'user', 'mod', 'admin', 'vip'
+        let myRole = 'user'; 
         let isBanned = false;
         let isMuted = false;
         let currentPostId = null;
@@ -259,7 +232,6 @@
             document.getElementById('post-form-container').classList.remove('hidden');
             document.getElementById('comment-form-container').classList.remove('hidden');
 
-            // Бейджи
             let badges = "";
             if(myRole === 'admin') badges += '<span class="role-badge badge-admin">ADMIN</span>';
             if(myRole === 'mod') badges += '<span class="role-badge badge-mod">MOD</span>';
@@ -268,25 +240,18 @@
 
             if(myRole === 'admin' || myRole === 'mod') {
                 document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('admin-post-options').style.display = 'block';
             } else {
                 document.getElementById('admin-panel').style.display = 'none';
-                document.getElementById('admin-post-options').style.display = 'none';
             }
         }
 
-        // --- УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ ---
         window.manageUser = async () => {
             if(myRole !== 'admin' && myRole !== 'mod') return alert("Нет доступа!");
-            
             const email = document.getElementById('manage-email').value.trim();
             const action = document.getElementById('manage-action').value;
             const statusMsg = document.getElementById('admin-status-msg');
-
             if(!email) return alert("Введите Email!");
-            if(myRole === 'mod' && (action === 'set_admin' || action === 'ban')) {
-                return alert("Модераторы могут только мутить/VIP. Банить может только Админ.");
-            }
+            if(myRole === 'mod' && (action === 'set_admin' || action === 'ban')) return alert("Модераторы могут только мутить/VIP.");
 
             const updates = {};
             if(action === 'set_admin') { updates.role = 'admin'; updates.isBanned = false; updates.isMuted = false; }
@@ -303,7 +268,7 @@
             } catch(e) { alert("Ошибка: " + e.message); }
         };
 
-        // --- ПОСТЫ ---
+        // --- ЛОГИКА ОТОБРАЖЕНИЯ ПОСТОВ И РЕКЛАМЫ ---
         function initPosts() {
             const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
             onSnapshot(q, (snapshot) => {
@@ -320,7 +285,22 @@
 
                 if (posts.length === 0) { container.innerHTML = "<p>Пока нет постов.</p>"; return; }
 
-                posts.forEach(post => {
+                posts.forEach((post, index) => {
+                    // ВСТАВКА РЕКЛАМЫ (ADSENSE)
+                    if (index > 0 && index % 3 === 0) {
+                        const adDiv = document.createElement('div');
+                        adDiv.className = 'ad-container';
+                        // В этом месте вы можете вставить реальный код <ins> от AdSense
+                        adDiv.innerHTML = `
+                            <div style="text-align:center;">
+                                <div class="ad-placeholder-text">Реклама Google AdSense</div>
+                                <!-- ВСТАВЬТЕ СЮДА ВАШ КОД <ins ...> -->
+                                <div style="color:#aaa; font-size:2rem;">[AD BANNER]</div>
+                            </div>
+                        `;
+                        container.appendChild(adDiv);
+                    }
+
                     const div = document.createElement('div');
                     div.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
                     
@@ -337,14 +317,9 @@
                     const date = post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString() : '...';
                     const titlePrefix = post.isPinned ? "📌 " : "";
                     
-                    let typeBadge = "";
-                    if(post.type === 'golden') typeBadge = " 🏆 [ЗОЛОТОЙ ИВЕНТ]";
-                    if(post.type === 'roulette') typeBadge = " 💀 [РУССКАЯ РУЛЕТКА]";
-                    if(post.type === 'flappy') typeBadge = " 🍆 [ИГРА: FLAPPY P.]";
-
                     div.innerHTML = `
                         ${adminControls}
-                        <div class="post-meta">Автор: ${escapeHtml(post.author)} • ${date} ${typeBadge}</div>
+                        <div class="post-meta">Автор: ${escapeHtml(post.author)} • ${date}</div>
                         <div class="post-title">${titlePrefix}${escapeHtml(post.title)}</div>
                         <div class="post-preview">${escapeHtml(post.content).substring(0, 100)}...</div>
                     `;
@@ -357,32 +332,15 @@
         window.createPost = async () => {
             if(!currentUser) return alert("Сначала войдите!");
             if(isBanned || isMuted) return alert("Вам запрещено публиковать посты.");
-
             const title = document.getElementById('new-post-title').value;
             const content = document.getElementById('new-post-content').value;
-            
-            // Выбор типа поста
-            let postType = 'normal';
-            if(myRole === 'admin' || myRole === 'mod') {
-                const radios = document.getElementsByName('post-type');
-                for(let r of radios) if(r.checked) postType = r.value;
-            }
-
             if (!title || !content) return alert("Заполните поля!");
-
             try {
                 await addDoc(collection(db, "posts"), {
-                    author: currentUser.email,
-                    title, content,
-                    timestamp: serverTimestamp(),
-                    isPinned: false,
-                    type: postType,
-                    goldCount: 0
+                    author: currentUser.email, title, content, timestamp: serverTimestamp(), isPinned: false
                 });
                 document.getElementById('new-post-title').value = "";
                 document.getElementById('new-post-content').value = "";
-                if(document.querySelector('input[name="post-type"][value="normal"]')) 
-                    document.querySelector('input[name="post-type"][value="normal"]').checked = true;
             } catch (e) { alert("Ошибка: " + e.message); }
         };
 
@@ -397,223 +355,21 @@
             try { await updateDoc(doc(db, "posts", id), { isPinned: !currentStatus }); } catch (e) { alert(e.message); }
         };
 
-        // --- ИВЕНТЫ ---
-        window.mineGold = async (id) => {
-            if(!currentUser) return alert("Войдите!");
-            try { await updateDoc(doc(db, "posts", id), { goldCount: increment(1) }); } catch(e) { console.error(e); }
-        };
-
-        window.playRoulette = async (id) => {
-            if(!currentUser) return alert("Войдите!");
-            const isDead = Math.random() < 0.166;
-            if(isDead) {
-                alert("💥 БА-БАХ! Вы погибли...");
-                await addDoc(collection(db, "posts", id, "comments"), {
-                    author: "💀 СУДЬБА",
-                    text: `Игрок ${currentUser.email} нажал на курок и... ПОГИБ!`,
-                    timestamp: serverTimestamp()
-                });
-            } else {
-                alert("😓 Щелк... Вам повезло. Вы живы.");
-                await addDoc(collection(db, "posts", id, "comments"), {
-                    author: "🍀 УДАЧА",
-                    text: `Игрок ${currentUser.email} выжил в рулетке.`,
-                    timestamp: serverTimestamp()
-                });
-            }
-        };
-
-        // --- FLAPPY GAME LOGIC ---
-        let gameInterval;
-        let bird = { x: 50, y: 150, velocity: 0, gravity: 0.5, jump: -8, size: 20 };
-        let pipes = [];
-        let score = 0;
-        let isGameRunning = false;
-        let gameCanvas, gameCtx;
-
-        window.startFlappy = (id) => {
-            if(isGameRunning) return;
-            gameCanvas = document.getElementById('flappy-canvas');
-            gameCtx = gameCanvas.getContext('2d');
-            
-            isGameRunning = true;
-            score = 0;
-            bird.y = 150;
-            bird.velocity = 0;
-            pipes = [];
-            
-            // Настройка управления (пробел или клик)
-            document.addEventListener('keydown', flappyInput);
-            gameCanvas.addEventListener('mousedown', flappyJump);
-            gameCanvas.addEventListener('touchstart', flappyJump);
-
-            gameInterval = setInterval(() => updateFlappy(id), 20);
-        };
-
-        function flappyInput(e) { if(e.code === 'Space') flappyJump(); }
-        function flappyJump(e) { if(e) e.preventDefault(); bird.velocity = bird.jump; }
-
-        function updateFlappy(postId) {
-            // Physics
-            bird.velocity += bird.gravity;
-            bird.y += bird.velocity;
-
-            // Pipes
-            if(pipes.length === 0 || pipes[pipes.length - 1].x < 150) {
-                let gapHeight = 100;
-                let pipeTop = Math.random() * (gameCanvas.height - gapHeight - 40) + 20;
-                pipes.push({ x: gameCanvas.width, top: pipeTop, gap: gapHeight, passed: false });
-            }
-
-            for(let i = 0; i < pipes.length; i++) {
-                let p = pipes[i];
-                p.x -= 2;
-
-                // Collision
-                if (
-                    bird.x < p.x + 30 &&
-                    bird.x + bird.size > p.x &&
-                    (bird.y < p.top || bird.y + bird.size > p.top + p.gap)
-                ) {
-                    gameOverFlappy(postId);
-                    return;
-                }
-
-                // Score
-                if(p.x + 30 < bird.x && !p.passed) {
-                    score++;
-                    p.passed = true;
-                }
-            }
-
-            // Remove offscreen pipes
-            if(pipes.length > 0 && pipes[0].x < -30) pipes.shift();
-
-            // Floor/Ceiling collision
-            if(bird.y > gameCanvas.height || bird.y < 0) {
-                gameOverFlappy(postId);
-                return;
-            }
-
-            drawFlappy();
-        }
-
-        function drawFlappy() {
-            gameCtx.fillStyle = '#70c5ce';
-            gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-
-            // Bird (Розовый квадрат, как "peniz" но абстрактно)
-            gameCtx.fillStyle = '#FF69B4'; 
-            gameCtx.fillRect(bird.x, bird.y, bird.size, bird.size); // Простой квадрат
-
-            // Pipes
-            gameCtx.fillStyle = '#228B22';
-            pipes.forEach(p => {
-                gameCtx.fillRect(p.x, 0, 30, p.top); // Top pipe
-                gameCtx.fillRect(p.x, p.top + p.gap, 30, gameCanvas.height - (p.top + p.gap)); // Bottom pipe
-            });
-
-            // Score
-            gameCtx.fillStyle = 'white';
-            gameCtx.font = '20px Arial';
-            gameCtx.fillText("Score: " + score, 10, 25);
-        }
-
-        async function gameOverFlappy(postId) {
-            clearInterval(gameInterval);
-            isGameRunning = false;
-            document.removeEventListener('keydown', flappyInput);
-            gameCanvas.removeEventListener('mousedown', flappyJump);
-            gameCanvas.removeEventListener('touchstart', flappyJump);
-            
-            alert("Игра окончена! Счет: " + score);
-
-            // Сохраняем рекорд
-            if(currentUser) {
-                const userName = currentUser.email.split('@')[0];
-                await addDoc(collection(db, "posts", postId, "scores"), {
-                    user: userName,
-                    score: score,
-                    timestamp: serverTimestamp()
-                });
-            }
-        }
-
-        // --- ПРОСМОТР ---
         window.openPost = (id, postData) => {
             currentPostId = id;
             document.getElementById('feed-view').classList.add('hidden');
             document.getElementById('post-detail-view').style.display = 'block';
-
             const date = postData.timestamp ? new Date(postData.timestamp.seconds * 1000).toLocaleString() : '...';
-            let eventSection = "";
-            
-            // Золото
-            if(postData.type === 'golden') {
-                eventSection = `
-                    <div class="event-area gold-style">
-                        <h3>🏆 ЗОЛОТОЙ ИВЕНТ 🏆</h3>
-                        <p>Кликайте, чтобы пополнить казну!</p>
-                        <button class="gold-btn" onclick="mineGold('${id}')">СОБРАТЬ ЗОЛОТО</button>
-                        <span class="gold-counter" id="gold-counter-display">${postData.goldCount || 0}</span>
-                    </div>`;
-                onSnapshot(doc(db, "posts", id), (doc) => {
-                    const el = document.getElementById('gold-counter-display');
-                    if(el && doc.exists()) el.innerText = doc.data().goldCount || 0;
-                });
-            }
-
-            // Рулетка
-            if(postData.type === 'roulette') {
-                eventSection = `
-                    <div class="event-area roulette-style">
-                        <h3>💀 РУССКАЯ РУЛЕТКА 💀</h3>
-                        <p>Шанс выжить: 5 из 6. Рискнешь?</p>
-                        <button class="roulette-btn" onclick="playRoulette('${id}')">🔫 НАЖАТЬ НА КУРОК</button>
-                    </div>`;
-            }
-
-            // Flappy
-            if(postData.type === 'flappy') {
-                eventSection = `
-                    <div class="event-area flappy-style">
-                        <h3>🍆 FLAPPY P. - ТУРНИР 🍆</h3>
-                        <p>Летай аккуратно! Рекорды записываются.</p>
-                        <canvas id="flappy-canvas" width="300" height="400"></canvas>
-                        <br>
-                        <button class="btn-primary" onclick="startFlappy('${id}')">ИГРАТЬ</button>
-                        <div class="score-board">
-                            <h4>🏆 Таблица лидеров:</h4>
-                            <div id="flappy-scores">Загрузка...</div>
-                        </div>
-                    </div>`;
-                
-                // Подписка на рекорды
-                const q = query(collection(db, "posts", id, "scores"), orderBy("score", "desc"), limit(10));
-                onSnapshot(q, (snapshot) => {
-                    const el = document.getElementById('flappy-scores');
-                    if(snapshot.empty) { el.innerHTML = "Пока нет рекордов."; return; }
-                    let html = "";
-                    snapshot.forEach(doc => {
-                        const s = doc.data();
-                        html += `<div class="score-row"><span>${escapeHtml(s.user)}</span><b>${s.score}</b></div>`;
-                    });
-                    el.innerHTML = html;
-                });
-            }
-
             document.getElementById('detail-content').innerHTML = `
                 <div class="post-meta">Автор: ${escapeHtml(postData.author)} • ${date}</div>
                 <h2>${escapeHtml(postData.title)}</h2>
                 <div style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(postData.content)}</div>
-                ${eventSection}
             `;
             loadComments(id);
         };
 
         window.closePost = () => {
             currentPostId = null;
-            if(isGameRunning) { clearInterval(gameInterval); isGameRunning = false; }
             document.getElementById('feed-view').classList.remove('hidden');
             document.getElementById('post-detail-view').style.display = 'none';
         };
@@ -622,7 +378,6 @@
         function loadComments(postId) {
             if (unsubscribeComments) unsubscribeComments();
             const q = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
-            
             unsubscribeComments = onSnapshot(q, (snapshot) => {
                 const list = document.getElementById('comments-list');
                 list.innerHTML = "";
