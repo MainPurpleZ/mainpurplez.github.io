@@ -7,6 +7,7 @@
     
     <!-- ========================================== -->
     <!-- ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
+    <!-- Ошибка 400 в консоли - это НОРМАЛЬНО, пока сайт не одобрен Google -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768"
      crossorigin="anonymous"></script>
     <!-- ========================================== -->
@@ -57,14 +58,14 @@
         .btn-del { background: red; }
         .btn-pin { background: gold; color: black; }
 
-        /* --- РЕКЛАМНЫЙ БЛОК (AdSense Container) --- */
+        /* --- РЕКЛАМНЫЙ БЛОК --- */
         .ad-container {
             margin: 1rem 0;
             padding: 1rem;
             background: #f9f9f9;
             border: 1px dashed #ccc;
             text-align: center;
-            min-height: 280px; /* Фиксированная высота, чтобы не прыгало */
+            min-height: 280px; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -294,8 +295,8 @@
                         adDiv.className = 'ad-container';
                         
                         let adHTML = '';
+                        // После 6, 12, 18 постов - MULTIPLEX
                         if (index % 6 === 0) {
-                            // MULTIPLEX
                             adHTML = `
                                 <div style="width:100%; text-align:center">
                                     <div class="ad-placeholder-text">Реклама (Multiplex)</div>
@@ -306,7 +307,7 @@
                                          data-ad-slot="7944668033"></ins>
                                 </div>`;
                         } else {
-                            // DISPLAY AD
+                            // После 3, 9, 15 постов - DISPLAY
                             adHTML = `
                                 <div style="width:100%; text-align:center">
                                     <div class="ad-placeholder-text">Реклама Google</div>
@@ -323,7 +324,7 @@
                         container.appendChild(adDiv);
                         
                         // Безопасный запуск рекламы
-                        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { console.log('Ad push error:', e); }
+                        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { console.log('Waiting for ad approval...'); }
                     }
 
                     const div = document.createElement('div');
