@@ -3,52 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gav.manka</title>
+    <title>Gav.manka - Главная</title>
     <style>
         body {
             margin: 0;
             min-height: 100vh;
             background-color: white;
             color: black;
-            /* Классический шрифт с засечками */
             font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
             padding: 1rem;
         }
 
-        /* Адаптивность для больших экранов */
         @media (min-width: 768px) {
-            body {
-                padding: 3rem;
-            }
+            body { padding: 3rem; }
         }
 
+        /* Заголовок сайта */
         h1 {
-            font-size: 2.25rem; /* 36px */
+            font-size: 2.25rem;
             line-height: 2.5rem;
             font-weight: 700;
             letter-spacing: -0.025em;
-            margin: 0;
+            margin: 0 0 1.5rem 0;
+        }
+        
+        h1 a {
+            text-decoration: none;
+            color: black;
         }
 
         @media (min-width: 768px) {
-            h1 {
-                font-size: 3.75rem; /* 60px */
-                line-height: 1;
-            }
+            h1 { font-size: 3.75rem; line-height: 1; }
         }
 
-        .info {
-            margin-top: 1.5rem;
+        /* Меню навигации */
+        nav {
+            border-top: 1px solid black;
+            border-bottom: 1px solid black;
+            padding: 0.5rem 0;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        nav a {
+            font-size: 1.125rem;
+            color: black;
+            text-decoration: underline;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 4px;
+        }
+
+        nav a:hover {
+            font-weight: bold;
+            text-decoration-thickness: 2px;
+        }
+
+        /* Стиль для активной ссылки */
+        nav a.active {
+            font-weight: bold;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        /* Контент */
+        .content {
+            max-width: 40rem;
             font-size: 1.125rem;
             line-height: 1.6;
-            max-width: 40rem; /* Ограничиваем ширину для удобства чтения */
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 0.5rem;
         }
     </style>
 </head>
 <body>
-    <h1>Gav.manka</h1>
-    <p class="info">
-        Привет это наш вебсайт в котором вы можете общаться (найди жизнь) уебатся! ( уро ) делать конфликты 24 на 7 потому что кто-то нарушил правила и вам скучно.
-    </p>
+
+    <h1><a href="index.html">Gav.manka</a></h1>
+
+    <nav>
+        <a href="index.html" class="active">Главная</a>
+        <a href="info.html">Информация</a>
+        <a href="projects.html">Проекты</a>
+    </nav>
+
+    <div class="content">
+        <h2>Добро пожаловать</h2>
+        <p>
+            Это главная страница сайта Gav.manka. <br>
+            Здесь царит классика и статика. Выберите раздел в меню выше, чтобы узнать больше.
+        </p>
+    </div>
+
 </body>
 </html>
