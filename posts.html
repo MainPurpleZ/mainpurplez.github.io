@@ -23,7 +23,7 @@
         @media (min-width: 768px) { body { padding: 3rem; } }
 
         .banner-wrapper { width: 100%; height: 250px; margin-bottom: 2rem; border: 2px solid black; overflow: hidden; position: relative; background-color: #f0f0f0; z-index: 1; }
-        .site-banner { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .site-banner { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.5s ease; }
         @media (min-width: 768px) { .banner-wrapper { height: 350px; } }
 
         h1 { font-size: 2.5rem; margin: 0 0 1.5rem 0; font-weight: 700; }
@@ -76,7 +76,7 @@
 
         .admin-panel { border: 2px solid red; padding: 1rem; margin-bottom: 2rem; background: #fff0f0; display: none; }
         .admin-panel h3 { color: red; margin-top: 0; text-transform: uppercase; }
-        .user-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
+        .user-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; flex-wrap: wrap; }
 
         #post-detail-view { display: none; }
         .back-btn { display: inline-block; margin-bottom: 1rem; cursor: pointer; text-decoration: underline; }
@@ -130,10 +130,12 @@
         <!-- АДМИН ПАНЕЛЬ -->
         <div id="admin-panel" class="admin-panel">
             <h3>Управление (Admin/Mod)</h3>
-            <p style="font-size:0.9rem">Назначение прав и наказаний по Email.</p>
+            
+            <!-- Секция Управления Юзерами -->
+            <p style="font-size:0.9rem; font-weight:bold; margin-bottom:5px;">Пользователи:</p>
             <div class="user-row">
-                <input type="email" id="manage-email" placeholder="Email пользователя">
-                <select id="manage-action">
+                <input type="email" id="manage-email" placeholder="Email пользователя" style="flex:1;">
+                <select id="manage-action" style="flex:1;">
                     <option value="set_admin">Сделать Админом</option>
                     <option value="set_mod">Сделать Модером</option>
                     <option value="set_vip">Сделать VIP (Фан)</option>
@@ -141,9 +143,22 @@
                     <option value="mute">Замутить (только чтение)</option>
                     <option value="clear">Снять все (Обычный юзер)</option>
                 </select>
-                <button class="btn-primary" onclick="manageUser()">OK</button>
+                <button class="btn-primary" onclick="manageUser()" style="width:auto;">OK</button>
             </div>
-            <div id="admin-status-msg" style="font-size:0.8rem; color:green;"></div>
+
+            <!-- Секция Смены Баннера -->
+            <p style="font-size:0.9rem; font-weight:bold; margin-bottom:5px; margin-top:15px; border-top:1px dashed red; padding-top:10px;">Баннер сайта (Глобально):</p>
+            <div class="user-row">
+                <select id="banner-select" style="flex:2;">
+                    <option value="background.png">Стандартный (background.png)</option>
+                    <option value="background1.png">Фон 1 (background1.png)</option>
+                    <option value="background2.png">Фон 2 (background2.png)</option>
+                    <option value="background3.png">Фон 3 (background3.png)</option>
+                </select>
+                <button class="btn-primary" onclick="changeGlobalBanner()" style="width:auto;">Установить</button>
+            </div>
+
+            <div id="admin-status-msg" style="font-size:0.8rem; color:green; margin-top:10px;"></div>
         </div>
 
         <!-- ЛЕНТА -->
@@ -211,8 +226,6 @@
             
             <!-- ADVANCED EDITOR (Только для Админов/Модеров) -->
             <div id="advanced-edit-section" class="advanced-section">
-                <!-- Убран выбор Типа Поста -->
-                
                 <div style="margin-bottom: 10px;">
                     <label style="font-weight:bold;">Цвет поста:</label>
                     <input type="color" id="edit-color" style="width:50px; padding:0; height:30px; border:none; vertical-align:middle;">
@@ -266,11 +279,23 @@
         let userDocUnsub = null;
         let editingPostId = null; 
 
+        // Загрузка ролей
         const rolesQuery = query(collection(db, "users"), where("role", "in", ["admin", "mod", "vip"]));
         onSnapshot(rolesQuery, (snapshot) => {
             allUserRoles = {};
             snapshot.forEach(doc => { allUserRoles[doc.id] = doc.data().role; });
             if (currentUser) initPosts();
+        });
+
+        // Слушатель настроек (БАННЕР)
+        onSnapshot(doc(db, "settings", "global"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.currentBanner) {
+                    const bannerImg = document.querySelector('.site-banner');
+                    if(bannerImg) bannerImg.src = data.currentBanner;
+                }
+            }
         });
 
         onAuthStateChanged(auth, (user) => {
@@ -351,6 +376,8 @@
             return '';
         }
 
+        // --- ФУНКЦИИ АДМИН ПАНЕЛИ ---
+        
         window.manageUser = async () => {
             if(myRole !== 'admin' && myRole !== 'mod') return alert("Нет доступа!");
             const emailInput = document.getElementById('manage-email');
@@ -374,6 +401,15 @@
                 statusMsg.innerText = `Успешно: ${email} -> ${action}`;
                 emailInput.value = "";
                 setTimeout(() => statusMsg.innerText = "", 3000);
+            } catch(e) { alert("Ошибка: " + e.message); }
+        };
+
+        window.changeGlobalBanner = async () => {
+            if(myRole !== 'admin') return alert("Только Админ может менять баннер!");
+            const selectedBanner = document.getElementById('banner-select').value;
+            try {
+                await setDoc(doc(db, "settings", "global"), { currentBanner: selectedBanner }, { merge: true });
+                alert("Баннер обновлен!");
             } catch(e) { alert("Ошибка: " + e.message); }
         };
 
@@ -489,7 +525,6 @@
                     if (post.color && post.color !== '#ffffff') {
                         div.style.backgroundColor = post.color;
                         div.style.borderColor = "black";
-                        // Если цвет темный (простая проверка), можно менять текст на белый, но пока оставим как есть
                     }
 
                     // Кнопки
