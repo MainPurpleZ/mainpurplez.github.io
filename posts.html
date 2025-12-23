@@ -55,7 +55,9 @@
 
         .post-card { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; cursor: pointer; transition: border-color 0.2s; position: relative; }
         .post-card:hover { border-color: black; }
-        .post-card.pinned { border: 2px solid #d4af37; background: rgba(212, 175, 55, 0.05); } 
+        .post-card.pinned { border: 2px solid #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); } 
+        /* Стиль для админ-чата */
+        .post-card.admin-chat { border: 2px dashed red; opacity: 0.9; }
 
         .post-meta { font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
         .post-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
@@ -66,6 +68,7 @@
         .btn-del { background: red; }
         .btn-pin { background: gold; color: black; }
         .btn-edit { background: #2196F3; }
+        .btn-up { background: #4CAF50; } /* Зеленая кнопка UP */
 
         .ad-container { margin: 1rem 0; padding: 1rem; background: #f9f9f9; border: 1px dashed #ccc; text-align: center; min-height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         body.dark-theme .ad-container { background: #222; border-color: #444; }
@@ -86,6 +89,7 @@
         .badge-mod { background: blue; color: white; border: 1px solid darkblue; }
         .badge-vip { background: linear-gradient(90deg, #9C27B0, #E040FB); color: white; border: 1px solid gold; box-shadow: 0 0 5px gold; }
         .temp-badge { color: orange; font-weight: bold; border: 1px solid orange; padding: 0 4px; font-size: 0.7rem; border-radius: 4px; }
+        .admin-chat-badge { background: black; color: red; border: 1px solid red; font-weight: bold; padding: 2px 5px; font-size: 0.7rem; }
 
         /* --- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ --- */
         .modal-overlay {
@@ -98,7 +102,7 @@
             width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
         }
         .advanced-section {
-            border: 1px dashed red; padding: 10px; margin: 10px 0;
+            border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px;
             display: none; /* Скрыто по умолчанию */
         }
     </style>
@@ -162,6 +166,13 @@
                     </label>
                 </div>
 
+                <!-- Специальные опции для Админа при создании -->
+                <div id="admin-create-options" style="display:none; margin-bottom:1rem; border-top:1px dashed #ccc; padding-top:5px;">
+                     <label style="cursor:pointer; color:red; font-weight:bold; font-size:0.9rem;">
+                        <input type="checkbox" id="is-admin-chat"> 🔒 Чат для админов (скрытый)
+                    </label>
+                </div>
+
                 <button class="btn-primary" onclick="createPost()">Опубликовать</button>
             </div>
 
@@ -200,13 +211,24 @@
             
             <!-- ADVANCED EDITOR (Только для Админов/Модеров) -->
             <div id="advanced-edit-section" class="advanced-section">
-                <h4 style="margin-top:0; color:red;">Advanced Options (Staff Only)</h4>
+                <!-- Убран заголовок "Advanced Options" -->
+                
+                <div style="margin-bottom: 10px;">
+                    <label style="font-weight:bold;">Цвет поста:</label>
+                    <input type="color" id="edit-color" style="width:50px; padding:0; height:30px; border:none; vertical-align:middle;">
+                    <span style="font-size:0.8rem; color:#666;">(Только для стаффа)</span>
+                </div>
+
                 <label style="display:block; margin-bottom:5px;">
                     <input type="checkbox" id="edit-pinned"> 📌 Закрепить пост
                 </label>
                 <label style="display:block; margin-bottom:5px;">
                     <input type="checkbox" id="edit-temporary"> ⏳ Временный (24ч)
                 </label>
+                <label style="display:block; margin-bottom:10px; color:red; font-weight:bold;">
+                    <input type="checkbox" id="edit-admin-chat"> 🔒 Чат для админов?
+                </label>
+
                 <label>Тип поста:</label>
                 <select id="edit-type">
                     <option value="normal">Обычный</option>
@@ -250,9 +272,8 @@
         let currentPostId = null;
         let allUserRoles = {}; 
         let userDocUnsub = null;
-        let editingPostId = null; // ID поста, который сейчас редактируется
+        let editingPostId = null; 
 
-        // Загрузка ролей
         const rolesQuery = query(collection(db, "users"), where("role", "in", ["admin", "mod", "vip"]));
         onSnapshot(rolesQuery, (snapshot) => {
             allUserRoles = {};
@@ -324,8 +345,10 @@
 
             if(myRole === 'admin' || myRole === 'mod') {
                 document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('admin-create-options').style.display = 'block';
             } else {
                 document.getElementById('admin-panel').style.display = 'none';
+                document.getElementById('admin-create-options').style.display = 'none';
             }
         }
 
@@ -362,8 +385,7 @@
             } catch(e) { alert("Ошибка: " + e.message); }
         };
 
-        // --- ЛОГИКА РЕДАКТИРОВАНИЯ ---
-        // Храним данные постов, чтобы не делать лишний запрос при открытии модального окна
+        // --- РЕДАКТИРОВАНИЕ ---
         let currentPostsCache = {}; 
 
         window.openEditModal = (postId) => {
@@ -374,12 +396,13 @@
             document.getElementById('edit-title').value = post.title;
             document.getElementById('edit-content').value = post.content;
 
-            // Логика Advanced Editor для Админов/Модеров
             if (myRole === 'admin' || myRole === 'mod') {
                 document.getElementById('advanced-edit-section').style.display = 'block';
                 document.getElementById('edit-pinned').checked = post.isPinned || false;
                 document.getElementById('edit-temporary').checked = post.isTemporary || false;
+                document.getElementById('edit-admin-chat').checked = post.isAdminChat || false;
                 document.getElementById('edit-type').value = post.type || 'normal';
+                document.getElementById('edit-color').value = post.color || '#ffffff';
             } else {
                 document.getElementById('advanced-edit-section').style.display = 'none';
             }
@@ -397,28 +420,23 @@
             const newTitle = document.getElementById('edit-title').value;
             const newContent = document.getElementById('edit-content').value;
 
-            const updates = {
-                title: newTitle,
-                content: newContent
-            };
+            const updates = { title: newTitle, content: newContent };
 
-            // Если Админ/Модер - сохраняем дополнительные поля
             if (myRole === 'admin' || myRole === 'mod') {
                 updates.isPinned = document.getElementById('edit-pinned').checked;
                 updates.isTemporary = document.getElementById('edit-temporary').checked;
+                updates.isAdminChat = document.getElementById('edit-admin-chat').checked;
                 updates.type = document.getElementById('edit-type').value;
+                updates.color = document.getElementById('edit-color').value;
             }
 
             try {
                 await updateDoc(doc(db, "posts", editingPostId), updates);
                 closeEditModal();
-                alert("Пост обновлен!");
-            } catch (e) {
-                alert("Ошибка сохранения: " + e.message);
-            }
+            } catch (e) { alert("Ошибка: " + e.message); }
         };
 
-        // --- ПОСТЫ И РЕКЛАМА ---
+        // --- ПОСТЫ ---
         let postsUnsub = null;
         function initPosts() {
             if (postsUnsub) postsUnsub();
@@ -428,13 +446,13 @@
                 const container = document.getElementById('posts-container');
                 container.innerHTML = "";
                 let posts = [];
-                currentPostsCache = {}; // Очищаем кеш
+                currentPostsCache = {}; 
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const post = { id: doc.id, ...data };
                     posts.push(post);
-                    currentPostsCache[doc.id] = post; // Сохраняем в кеш
+                    currentPostsCache[doc.id] = post; 
                 });
 
                 posts.sort((a, b) => {
@@ -448,13 +466,19 @@
                 const now = Date.now();
 
                 posts.forEach((post, index) => {
+                    // 1. Фильтр Временных постов
                     if(post.isTemporary) {
                         const postTime = post.timestamp ? post.timestamp.seconds * 1000 : now;
                         if (now - postTime > 86400000) return;
                     }
 
+                    // 2. Фильтр Чат для админов (Секретный)
+                    if (post.isAdminChat && myRole !== 'admin' && myRole !== 'mod') {
+                        return; // Обычные юзеры не видят этот пост
+                    }
+
+                    // 3. Реклама
                     if (index > 0 && index % 3 === 0) {
-                        // Вставка рекламы (как и было)
                         const adDiv = document.createElement('div');
                         adDiv.className = 'ad-container';
                         let adHTML = '';
@@ -469,41 +493,44 @@
                     }
 
                     const div = document.createElement('div');
-                    div.className = `post-card ${post.isPinned ? 'pinned' : ''}`;
+                    div.className = `post-card ${post.isPinned ? 'pinned' : ''} ${post.isAdminChat ? 'admin-chat' : ''}`;
                     
-                    // Кнопки управления (Изменение + Удаление/Пин)
+                    // ПРИМЕНЕНИЕ ЦВЕТА
+                    if (post.color && post.color !== '#ffffff') {
+                        div.style.backgroundColor = post.color;
+                        div.style.borderColor = "black";
+                        // Если цвет темный (простая проверка), можно менять текст на белый, но пока оставим как есть
+                    }
+
+                    // Кнопки
                     let controlsHTML = "";
                     const isOwner = currentUser && currentUser.email === post.author;
                     const isStaff = myRole === 'admin' || myRole === 'mod';
 
-                    // Кнопка Edit: Для владельца или стаффа
                     if (isOwner || isStaff) {
                         controlsHTML += `<button class="action-btn btn-edit" onclick="event.stopPropagation(); openEditModal('${post.id}')">EDIT</button>`;
                     }
 
-                    // Кнопки стаффа: Del, Pin
                     if (isStaff) {
-                        controlsHTML += `
-                            <button class="action-btn btn-pin" onclick="event.stopPropagation(); togglePin('${post.id}', ${post.isPinned})">${post.isPinned ? 'Unpin' : '📌'}</button>
-                            <button class="action-btn btn-del" onclick="event.stopPropagation(); deletePost('${post.id}')">DEL</button>
-                        `;
+                        // Кнопка UP (Сделать активным)
+                        controlsHTML += `<button class="action-btn btn-up" onclick="event.stopPropagation(); bumpPost('${post.id}')">UP 🚀</button>`;
+                        controlsHTML += `<button class="action-btn btn-pin" onclick="event.stopPropagation(); togglePin('${post.id}', ${post.isPinned})">${post.isPinned ? 'Unpin' : '📌'}</button>`;
+                        controlsHTML += `<button class="action-btn btn-del" onclick="event.stopPropagation(); deletePost('${post.id}')">DEL</button>`;
                     }
 
-                    // Обертка для кнопок
-                    if (controlsHTML) {
-                        controlsHTML = `<div class="controls-area">${controlsHTML}</div>`;
-                    }
+                    if (controlsHTML) controlsHTML = `<div class="controls-area">${controlsHTML}</div>`;
 
                     const date = post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString() : '...';
                     const titlePrefix = post.isPinned ? "📌 " : "";
                     const tempBadge = post.isTemporary ? '<span class="temp-badge">⏳ 24h</span>' : "";
+                    const adminChatBadge = post.isAdminChat ? '<span class="admin-chat-badge">🔒 ADMIN CHAT</span>' : "";
 
                     const realRole = allUserRoles[post.author] || post.role || 'user';
                     const roleBadge = getBadgeHTML(realRole);
                     
                     div.innerHTML = `
                         ${controlsHTML}
-                        <div class="post-meta">Автор: ${escapeHtml(post.author)} ${roleBadge} • ${date} ${tempBadge}</div>
+                        <div class="post-meta">Автор: ${escapeHtml(post.author)} ${roleBadge} • ${date} ${tempBadge} ${adminChatBadge}</div>
                         <div class="post-title">${titlePrefix}${escapeHtml(post.title)}</div>
                         <div class="post-preview">${escapeHtml(post.content).substring(0, 100)}...</div>
                     `;
@@ -519,17 +546,27 @@
             const title = document.getElementById('new-post-title').value;
             const content = document.getElementById('new-post-content').value;
             const isTemporary = document.getElementById('is-temporary').checked;
+            
+            // Админские опции при создании
+            let isAdminChat = false;
+            if (myRole === 'admin' || myRole === 'mod') {
+                isAdminChat = document.getElementById('is-admin-chat').checked;
+            }
 
             if (!title || !content) return alert("Заполните поля!");
             try {
                 await addDoc(collection(db, "posts"), {
                     author: currentUser.email, 
                     role: myRole,
-                    title, content, timestamp: serverTimestamp(), isPinned: false, isTemporary: isTemporary 
+                    title, content, timestamp: serverTimestamp(), 
+                    isPinned: false, 
+                    isTemporary: isTemporary,
+                    isAdminChat: isAdminChat
                 });
                 document.getElementById('new-post-title').value = "";
                 document.getElementById('new-post-content').value = "";
                 document.getElementById('is-temporary').checked = false;
+                if(document.getElementById('is-admin-chat')) document.getElementById('is-admin-chat').checked = false;
             } catch (e) { alert("Ошибка: " + e.message); }
         };
 
@@ -544,6 +581,15 @@
             try { await updateDoc(doc(db, "posts", id), { isPinned: !currentStatus }); } catch (e) { alert(e.message); }
         };
 
+        // --- НОВАЯ ФУНКЦИЯ: ПОДНЯТЬ ПОСТ (Сделать Активным) ---
+        window.bumpPost = async (id) => {
+            if(myRole !== 'admin' && myRole !== 'mod') return alert("Нет прав!");
+            try { 
+                await updateDoc(doc(db, "posts", id), { timestamp: serverTimestamp() }); 
+                // Не нужен алерт, пост сам прыгнет вверх
+            } catch (e) { alert(e.message); }
+        };
+
         window.openPost = (id, postData) => {
             currentPostId = id;
             document.getElementById('feed-view').classList.add('hidden');
@@ -552,13 +598,26 @@
             
             const realRole = allUserRoles[postData.author] || postData.role || 'user';
             const roleBadge = getBadgeHTML(realRole);
-            const tempBadge = postData.isTemporary ? '<span class="temp-badge">⏳ ИСЧЕЗНЕТ ЧЕРЕЗ 24 ЧАСА</span>' : "";
+            const tempBadge = postData.isTemporary ? '<span class="temp-badge">⏳ 24h</span>' : "";
+            const adminChatBadge = postData.isAdminChat ? '<span class="admin-chat-badge">🔒 ADMIN CHAT</span>' : "";
 
             document.getElementById('detail-content').innerHTML = `
-                <div class="post-meta">Автор: ${escapeHtml(postData.author)} ${roleBadge} • ${date} ${tempBadge}</div>
+                <div class="post-meta">Автор: ${escapeHtml(postData.author)} ${roleBadge} • ${date} ${tempBadge} ${adminChatBadge}</div>
                 <h2>${escapeHtml(postData.title)}</h2>
                 <div style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(postData.content)}</div>
             `;
+            
+            // Применяем цвет фона к детальному просмотру тоже, если нужно
+            if (postData.color && postData.color !== '#ffffff') {
+                document.getElementById('detail-content').style.backgroundColor = postData.color;
+                document.getElementById('detail-content').style.padding = "10px";
+                document.getElementById('detail-content').style.borderRadius = "5px";
+                document.getElementById('detail-content').style.border = "1px solid black";
+            } else {
+                document.getElementById('detail-content').style.backgroundColor = "";
+                document.getElementById('detail-content').style.border = "";
+            }
+
             loadComments(id);
         };
 
