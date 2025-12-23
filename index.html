@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gav.manka - Главная</title>
     <style>
-        /* Стили сохранены */
         body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; }
         body.dark-theme { background-color: #121212; color: #e0e0e0; }
         body.dark-theme nav { border-color: #e0e0e0; }
@@ -24,10 +23,33 @@
         h1 a { text-decoration: none; color: black; }
         @media (min-width: 768px) { h1 { font-size: 4rem; } }
 
-        nav { border-top: 2px solid black; border-bottom: 2px solid black; padding: 0.75rem 0; margin-bottom: 2.5rem; display: flex; gap: 2rem; }
+        nav { border-top: 2px solid black; border-bottom: 2px solid black; padding: 0.75rem 0; margin-bottom: 2.5rem; display: flex; gap: 2rem; align-items: center; }
         nav a { font-size: 1.25rem; color: black; text-decoration: none; font-weight: 500; }
         nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
         nav a.active { font-weight: bold; text-decoration: underline; }
+
+        /* --- НОВЫЙ СТИЛЬ ДЛЯ КНОПКИ ПОСТЫ --- */
+        .nav-btn-posts {
+            color: #d32f2f !important;
+            border: 2px solid #d32f2f;
+            padding: 4px 10px;
+            border-radius: 4px;
+            animation: pulse-btn 2s infinite;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            text-decoration: none !important;
+        }
+        .nav-btn-posts:hover {
+            background-color: #d32f2f;
+            color: white !important;
+        }
+        @keyframes pulse-btn {
+            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(211, 47, 47, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+        }
 
         .content { max-width: 50rem; font-size: 1.2rem; line-height: 1.6; position: relative; z-index: 10; }
         #theme-toggle { position: absolute; top: 1rem; right: 1rem; background: none; border: 2px solid black; padding: 0.5rem; cursor: pointer; z-index: 20; }
@@ -48,8 +70,8 @@
         <a href="index.html" class="active">Главная</a>
         <a href="info.html">Информация</a>
         <a href="projects.html">Проекты</a>
-        <a href="posts.html">Посты</a>
-        <!-- Ссылка на вход -->
+        <!-- Выделенная кнопка -->
+        <a href="posts.html" class="nav-btn-posts">Посты 🔥</a>
         <a href="auth.html">Вход</a>
     </nav>
 
