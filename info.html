@@ -10,7 +10,7 @@
      crossorigin="anonymous"></script>
 
     <style>
-        body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; }
+        body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; padding-bottom: 50px; }
         body.dark-theme { background-color: #121212; color: #e0e0e0; }
         body.dark-theme nav { border-color: #e0e0e0; }
         body.dark-theme nav a { color: #e0e0e0; }
@@ -18,7 +18,7 @@
         body.dark-theme .banner-wrapper { border-color: #e0e0e0; opacity: 0.9; }
         body.dark-theme #theme-toggle { border-color: #e0e0e0; color: #e0e0e0; }
         body.dark-theme #theme-toggle:hover { background-color: #333; }
-        @media (min-width: 768px) { body { padding: 3rem; } }
+        @media (min-width: 768px) { body { padding: 3rem; padding-bottom: 50px; } }
 
         .banner-wrapper { width: 100%; height: 250px; margin-bottom: 2rem; border: 2px solid black; overflow: hidden; position: relative; background-color: #f0f0f0; z-index: 1; }
         .site-banner { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -58,11 +58,29 @@
         .content { max-width: 50rem; font-size: 1.2rem; line-height: 1.6; position: relative; z-index: 10; }
         #theme-toggle { position: absolute; top: 1rem; right: 1rem; background: none; border: 2px solid black; padding: 0.5rem; cursor: pointer; z-index: 20; }
         #snow-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
+
+        /* МУЗЫКАЛЬНЫЙ ПЛЕЕР */
+        #music-player {
+            position: fixed; bottom: 10px; left: 10px; z-index: 1000;
+            background: white; padding: 5px 10px; border: 2px solid black;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+            font-family: monospace; font-size: 0.9rem;
+        }
+        body.dark-theme #music-player { background: #222; border-color: #e0e0e0; box-shadow: 4px 4px 0px 0px #e0e0e0; color: #e0e0e0; }
+        #music-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; color: inherit; }
     </style>
 </head>
 <body>
     <button id="theme-toggle">☾ Тема</button>
     <canvas id="snow-canvas"></canvas>
+
+    <!-- МУЗЫКА -->
+    <div id="music-player">
+        <button id="music-btn" onclick="toggleMusic()">▶</button>
+        <span id="track-name">music1.mp3</span>
+        <audio id="audio-element" src="music1.mp3" onended="nextTrack()"></audio>
+    </div>
 
     <div class="banner-wrapper">
         <img src="background.png" alt="Баннер" class="site-banner" onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='<span style=\'font-size:2rem; opacity:0.3;\'>[Gav.manka]</span>';">
@@ -93,6 +111,26 @@
             body.classList.toggle('dark-theme');
             localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light');
         });
+
+        // МУЗЫКА
+        let currentTrack = 1;
+        const TOTAL_TRACKS = 3;
+        const audio = document.getElementById('audio-element');
+        const mBtn = document.getElementById('music-btn');
+        const mLabel = document.getElementById('track-name');
+
+        function toggleMusic() {
+            if (audio.paused) { audio.play(); mBtn.innerText = "⏸"; } 
+            else { audio.pause(); mBtn.innerText = "▶"; }
+        }
+        function nextTrack() {
+            currentTrack++;
+            if (currentTrack > TOTAL_TRACKS) currentTrack = 1;
+            audio.src = `music${currentTrack}.mp3`;
+            mLabel.innerText = `music${currentTrack}.mp3`;
+            audio.play();
+            mBtn.innerText = "⏸";
+        }
 
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
