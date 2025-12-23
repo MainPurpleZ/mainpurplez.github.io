@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gav.manka - Посты</title>
     
+    <!-- ИСПРАВЛЕНИЕ ОШИБКИ FAVICON (Чтобы не было 404) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
+
     <!-- ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768"
      crossorigin="anonymous"></script>
@@ -261,7 +264,6 @@
                      <label style="cursor:pointer; color:red; font-weight:bold; font-size:0.9rem; margin-right: 15px;">
                         <input type="checkbox" id="is-admin-chat"> 🔒 Чат для админов
                     </label>
-                    <!-- НОВЫЙ ГОД -->
                     <label style="cursor:pointer; color:#b71c1c; font-weight:bold; font-size:0.9rem; font-family:'Lobster', cursive;">
                         <input type="checkbox" id="is-new-year"> 🎄 Новый Год!
                     </label>
@@ -538,6 +540,15 @@
                 });
 
                 filterAndRenderPosts();
+            }, (error) => {
+                console.error("Ошибка загрузки постов:", error);
+                document.getElementById('posts-container').innerHTML = `
+                    <div style="padding: 20px; border: 2px solid red; color: red; background: #fff0f0;">
+                        <h3>⚠ Ошибка загрузки данных</h3>
+                        <p>${error.message}</p>
+                        <p>Попробуйте войти в аккаунт или обновить страницу.</p>
+                    </div>
+                `;
             });
         }
 
