@@ -5,21 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gav.manka - Посты</title>
     
-    <!-- !!! ВАЖНОЕ ИСПРАВЛЕНИЕ ДЛЯ ОШИБКИ CSP !!! -->
-    <!-- Эта строка разрешает скриптам Google работать и не ломать сайт -->
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-
-    <!-- ИКОНКА САЙТА -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
-
-    <!-- ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768"
-     crossorigin="anonymous"></script>
-
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 
     <style>
-        /* --- СТИЛИ --- */
         body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; padding-bottom: 80px; }
         body.dark-theme { background-color: #121212; color: #e0e0e0; }
         body.dark-theme nav { border-color: #e0e0e0; }
@@ -107,11 +97,29 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; display: flex; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 2rem; border: 2px solid black; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .advanced-section { border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px; display: none; }
+
+        /* МУЗЫКАЛЬНЫЙ ПЛЕЕР */
+        #music-player {
+            position: fixed; bottom: 10px; left: 10px; z-index: 1000;
+            background: white; padding: 5px 10px; border: 2px solid black;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+            font-family: monospace; font-size: 0.9rem;
+        }
+        body.dark-theme #music-player { background: #222; border-color: #e0e0e0; box-shadow: 4px 4px 0px 0px #e0e0e0; color: #e0e0e0; }
+        #music-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; color: inherit; }
     </style>
 </head>
 <body>
     <button id="theme-toggle">☾ Тема</button>
     <canvas id="snow-canvas"></canvas>
+
+    <!-- МУЗЫКА -->
+    <div id="music-player">
+        <button id="music-btn" onclick="toggleMusic()">▶</button>
+        <span id="track-name">music1.mp3</span>
+        <audio id="audio-element" src="music1.mp3" onended="nextTrack()"></audio>
+    </div>
 
     <div class="banner-wrapper">
         <img src="background.png" alt="Баннер" class="site-banner" onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='<span style=\'font-size:2rem; opacity:0.3;\'>[Gav.manka]</span>';">
@@ -719,6 +727,26 @@
         const body = document.body;
         if (localStorage.getItem('theme') === 'dark') body.classList.add('dark-theme');
         toggleBtn.addEventListener('click', () => { body.classList.toggle('dark-theme'); localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light'); });
+
+        // МУЗЫКА
+        let currentTrack = 1;
+        const TOTAL_TRACKS = 3; 
+        const audio = document.getElementById('audio-element');
+        const mBtn = document.getElementById('music-btn');
+        const mLabel = document.getElementById('track-name');
+
+        window.toggleMusic = () => {
+            if (audio.paused) { audio.play(); mBtn.innerText = "⏸"; } 
+            else { audio.pause(); mBtn.innerText = "▶"; }
+        };
+        window.nextTrack = () => {
+            currentTrack++;
+            if (currentTrack > TOTAL_TRACKS) currentTrack = 1;
+            audio.src = `music${currentTrack}.mp3`;
+            mLabel.innerText = `music${currentTrack}.mp3`;
+            audio.play();
+            mBtn.innerText = "⏸";
+        };
 
         const canvas = document.getElementById('snow-canvas');
         const ctx = canvas.getContext('2d');
