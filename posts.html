@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gav.manka - Посты</title>
     
-    <!-- ИСПРАВЛЕНИЕ ОШИБКИ FAVICON (Чтобы не было 404) -->
+    <!-- ИКОНКА САЙТА (Чтобы не было ошибки 404) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
 
     <!-- ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768"
      crossorigin="anonymous"></script>
 
-    <!-- Подключаем праздничный шрифт -->
+    <!-- Праздничный шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
 
     <style>
-        /* --- СТИЛИ (База) --- */
-        body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; padding-bottom: 80px; /* Отступ под липкий футер */ }
+        /* --- ОСНОВНЫЕ СТИЛИ --- */
+        body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; padding-bottom: 80px; }
         body.dark-theme { background-color: #121212; color: #e0e0e0; }
         body.dark-theme nav { border-color: #e0e0e0; }
         body.dark-theme nav a { color: #e0e0e0; }
@@ -39,20 +39,11 @@
         nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
         nav a.active { font-weight: bold; text-decoration: underline; }
 
-        /* Кнопка Посты */
-        .nav-btn-posts {
-            color: #d32f2f !important; border: 2px solid #d32f2f; padding: 4px 10px; border-radius: 4px;
-            animation: pulse-btn 2s infinite; display: inline-flex; align-items: center; gap: 5px; font-weight: bold; text-decoration: none !important;
-        }
+        .nav-btn-posts { color: #d32f2f !important; border: 2px solid #d32f2f; padding: 4px 10px; border-radius: 4px; animation: pulse-btn 2s infinite; display: inline-flex; align-items: center; gap: 5px; font-weight: bold; text-decoration: none !important; }
         .nav-btn-posts:hover { background-color: #d32f2f; color: white !important; }
-        @keyframes pulse-btn {
-            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
-            70% { box-shadow: 0 0 0 6px rgba(211, 47, 47, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
-        }
+        @keyframes pulse-btn { 0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(211, 47, 47, 0); } 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); } }
 
         .content { max-width: 50rem; position: relative; z-index: 10; }
-        
         .create-post-form { border: 2px solid black; padding: 1rem; margin-bottom: 2rem; background: rgba(255,255,255,0.05); }
         input, textarea, select { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; font-family: inherit; border: 1px solid #ccc; box-sizing: border-box; background: transparent; }
         button.btn-primary { background: black; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; font-family: inherit; font-weight: bold; }
@@ -63,62 +54,25 @@
         .post-card:hover { border-color: black; }
         .post-card.pinned { border: 2px solid #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); } 
         .post-card.admin-chat { border: 2px dashed red; opacity: 0.9; }
-
-        /* --- СТИЛИ ДЛЯ НОВОГОДНЕГО ПОСТА (В ЛЕНТЕ) --- */
-        .post-card.new-year {
-            background-color: #b71c1c; /* Красный */
-            border: 3px solid #ffca28; /* Золотой */
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(183, 28, 28, 0.5);
-            font-family: 'Lobster', cursive;
-        }
+        
+        /* СТИЛИ НОВОГО ГОДА */
+        .post-card.new-year { background-color: #b71c1c; border: 3px solid #ffca28; color: #fff; box-shadow: 0 4px 15px rgba(183, 28, 28, 0.5); font-family: 'Lobster', cursive; }
         .post-card.new-year .post-title { font-size: 1.8rem; text-shadow: 1px 1px 0 #000; }
-        .post-card.new-year .post-meta { color: #ffecb3; }
-        .post-card.new-year .post-id { color: #ffecb3; }
-        .post-card.new-year button { border-color: white; }
+        .post-card.new-year .post-meta, .post-card.new-year .post-id { color: #ffecb3; }
 
-        /* --- СТИЛИ ДЛЯ ОТКРЫТОГО НОВОГОДНЕГО ПОСТА --- */
-        .new-year-detail-container {
-            background: linear-gradient(135deg, #880e4f, #b71c1c);
-            padding: 2rem;
-            border-radius: 10px;
-            border: 4px dashed #ffca28;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        .new-year-detail-container h2 {
-            font-family: 'Lobster', cursive;
-            font-size: 3rem;
-            text-align: center;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            margin-bottom: 2rem;
-        }
-        .new-year-detail-container::before {
-            content: "❄️ 🎄 ❄️";
-            position: absolute; top: 10px; left: 0; right: 0;
-            text-align: center; font-size: 2rem; opacity: 0.5;
-        }
-        .new-year-comment {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid #ffca28 !important;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            padding: 10px !important;
-            color: #fff;
-        }
+        .new-year-detail-container { background: linear-gradient(135deg, #880e4f, #b71c1c); padding: 2rem; border-radius: 10px; border: 4px dashed #ffca28; color: white; position: relative; overflow: hidden; }
+        .new-year-detail-container h2 { font-family: 'Lobster', cursive; font-size: 3rem; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 2rem; }
+        .new-year-detail-container::before { content: "❄️ 🎄 ❄️"; position: absolute; top: 10px; left: 0; right: 0; text-align: center; font-size: 2rem; opacity: 0.5; }
+        .new-year-comment { background: rgba(255, 255, 255, 0.1); border: 1px solid #ffca28 !important; border-radius: 5px; margin-bottom: 10px; padding: 10px !important; color: #fff; }
 
         .post-meta { font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
         .post-id { font-family: monospace; color: #888; font-size: 0.75rem; margin-left: auto; opacity: 0.6; }
         .post-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-        
         .controls-area { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 10; }
         .action-btn { border: none; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; color: white; font-weight: bold; }
-        .btn-del { background: red; }
-        .btn-pin { background: gold; color: black; }
-        .btn-edit { background: #2196F3; }
-        .btn-up { background: #4CAF50; }
+        .btn-del { background: red; } .btn-pin { background: gold; color: black; } .btn-edit { background: #2196F3; } .btn-up { background: #4CAF50; }
 
+        /* СТИЛИ РЕКЛАМЫ */
         .ad-container { margin: 1rem 0; padding: 1rem; background: #f9f9f9; border: 1px dashed #ccc; text-align: center; min-height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         body.dark-theme .ad-container { background: #222; border-color: #444; }
         .ad-placeholder-text { font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; }
@@ -140,58 +94,16 @@
         .temp-badge { color: orange; font-weight: bold; border: 1px solid orange; padding: 0 4px; font-size: 0.7rem; border-radius: 4px; }
         .admin-chat-badge { background: black; color: red; border: 1px solid red; font-weight: bold; padding: 2px 5px; font-size: 0.7rem; }
 
-        /* --- ПОИСК --- */
-        .search-bar {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 2px solid black;
-            font-family: inherit;
-            background: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
-        }
-        body.dark-theme .search-bar {
-            background: rgba(0, 0, 0, 0.2);
-            border-color: #444;
-            color: #e0e0e0;
-        }
+        .search-bar { width: 100%; padding: 10px; margin-bottom: 20px; border: 2px solid black; font-family: inherit; background: rgba(255, 255, 255, 0.5); font-size: 1rem; }
+        body.dark-theme .search-bar { background: rgba(0, 0, 0, 0.2); border-color: #444; color: #e0e0e0; }
         .search-bar::placeholder { opacity: 0.7; }
 
-        /* --- ЛИПКИЙ ФУТЕР ДЛЯ КОММЕНТАРИЕВ --- */
-        .sticky-comment-footer {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            background: white;
-            border-top: 2px solid black;
-            padding: 10px;
-            z-index: 50;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            display: none; /* Показываем только в открытом посте */
-        }
-        body.dark-theme .sticky-comment-footer {
-            background: #1a1a1a;
-            border-top-color: #444;
-        }
-        .comment-input-wrapper {
-            max-width: 50rem;
-            margin: 0 auto;
-            display: flex;
-            gap: 10px;
-        }
-        .sticky-input {
-            flex-grow: 1;
-            margin-bottom: 0;
-            height: 40px;
-            resize: none;
-        }
-        .sticky-btn {
-            width: auto;
-            margin-bottom: 0;
-            height: 40px;
-            padding: 0 20px;
-        }
+        .sticky-comment-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 2px solid black; padding: 10px; z-index: 50; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: none; }
+        body.dark-theme .sticky-comment-footer { background: #1a1a1a; border-top-color: #444; }
+        .comment-input-wrapper { max-width: 50rem; margin: 0 auto; display: flex; gap: 10px; }
+        .sticky-input { flex-grow: 1; margin-bottom: 0; height: 40px; resize: none; }
+        .sticky-btn { width: auto; margin-bottom: 0; height: 40px; padding: 0 20px; }
 
-        /* --- МОДАЛЬНОЕ ОКНО --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; display: flex; align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 2rem; border: 2px solid black; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .advanced-section { border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px; display: none; }
@@ -259,7 +171,6 @@
                     </label>
                 </div>
 
-                <!-- АДМИН ОПЦИИ -->
                 <div id="admin-create-options" style="display:none; margin-bottom:1rem; border-top:1px dashed #ccc; padding-top:5px;">
                      <label style="cursor:pointer; color:red; font-weight:bold; font-size:0.9rem; margin-right: 15px;">
                         <input type="checkbox" id="is-admin-chat"> 🔒 Чат для админов
@@ -284,18 +195,15 @@
         <!-- ДЕТАЛИ ПОСТА -->
         <div id="post-detail-view">
             <span class="back-btn" onclick="closePost()">← Назад к ленте</span>
-            
             <div id="detail-content"></div>
-            
             <div class="comment-section" style="margin-top:2rem; border-top:1px solid #ccc;">
                 <h3 id="comments-header">Комментарии</h3>
-                <!-- Список комментариев (Форма теперь внизу, в липком футере) -->
                 <div id="comments-list" style="margin-bottom: 50px;"></div>
             </div>
         </div>
     </div>
 
-    <!-- ЛИПКИЙ ФУТЕР КОММЕНТАРИЕВ -->
+    <!-- ЛИПКИЙ ФУТЕР -->
     <div id="sticky-comment-footer" class="sticky-comment-footer">
         <div class="comment-input-wrapper">
             <input type="text" id="sticky-comment-text" class="sticky-input" placeholder="Написать комментарий..." autocomplete="off">
@@ -303,7 +211,7 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+    <!-- МОДАЛЬНОЕ ОКНО -->
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <h3 style="margin-top:0">Редактировать пост</h3>
@@ -365,18 +273,19 @@
         let allUserRoles = {}; 
         let userDocUnsub = null;
         let editingPostId = null; 
-        let allPosts = []; // Хранилище постов для поиска
+        let allPosts = []; 
 
-        // Загрузка ролей
         const rolesQuery = query(collection(db, "users"), where("role", "in", ["admin", "mod", "vip"]));
         onSnapshot(rolesQuery, (snapshot) => {
             allUserRoles = {};
             snapshot.forEach(doc => { allUserRoles[doc.id] = doc.data().role; });
-            if (currentUser) filterAndRenderPosts();
+            if (allPosts.length > 0) filterAndRenderPosts();
         });
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
+            if (!allPosts.length) initPosts();
+
             if (user) {
                 document.getElementById('guest-msg').classList.add('hidden');
                 document.getElementById('auth-link').innerText = "Аккаунт";
@@ -407,7 +316,7 @@
                 document.getElementById('admin-panel').style.display = 'none';
                 document.getElementById('auth-link').innerText = "Вход";
                 document.getElementById('sticky-comment-footer').style.display = 'none';
-                initPosts();
+                filterAndRenderPosts();
             }
         });
 
@@ -546,7 +455,6 @@
                     <div style="padding: 20px; border: 2px solid red; color: red; background: #fff0f0;">
                         <h3>⚠ Ошибка загрузки данных</h3>
                         <p>${error.message}</p>
-                        <p>Попробуйте войти в аккаунт или обновить страницу.</p>
                     </div>
                 `;
             });
@@ -584,6 +492,7 @@
 
                 if (post.isAdminChat && myRole !== 'admin' && myRole !== 'mod') return; 
 
+                // РЕКЛАМА (ВКЛЮЧЕНА)
                 if (index > 0 && index % 3 === 0) {
                     const adDiv = document.createElement('div');
                     adDiv.className = 'ad-container';
