@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gav.manka - Главная</title>
+    
+    <!-- ГЛАВНЫЙ СКРИПТ GOOGLE ADSENSE -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768"
+     crossorigin="anonymous"></script>
+
     <style>
         body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; }
         body.dark-theme { background-color: #121212; color: #e0e0e0; }
@@ -28,7 +33,6 @@
         nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
         nav a.active { font-weight: bold; text-decoration: underline; }
 
-        /* --- НОВЫЙ СТИЛЬ ДЛЯ КНОПКИ ПОСТЫ --- */
         .nav-btn-posts {
             color: #d32f2f !important;
             border: 2px solid #d32f2f;
@@ -61,7 +65,7 @@
     <canvas id="snow-canvas"></canvas>
 
     <div class="banner-wrapper">
-        <img src="background.png" alt="Баннер" class="site-banner" onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.innerHTML='<span style=\'font-size:2rem; opacity:0.3;\'>[Gav.manka]</span>';">
+        <img src="background.png" alt="Баннер" class="site-banner" onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='<span style=\'font-size:2rem; opacity:0.3;\'>[Gav.manka]</span>';">
     </div>
 
     <h1><a href="index.html">Gav.manka</a></h1>
@@ -70,7 +74,6 @@
         <a href="index.html" class="active">Главная</a>
         <a href="info.html">Информация</a>
         <a href="projects.html">Проекты</a>
-        <!-- Выделенная кнопка -->
         <a href="posts.html" class="nav-btn-posts">Посты 🔥</a>
         <a href="auth.html">Вход</a>
     </nav>
