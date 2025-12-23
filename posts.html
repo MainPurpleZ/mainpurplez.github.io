@@ -71,6 +71,7 @@
         }
         .post-card.new-year .post-title { font-size: 1.8rem; text-shadow: 1px 1px 0 #000; }
         .post-card.new-year .post-meta { color: #ffecb3; }
+        .post-card.new-year .post-id { color: #ffecb3; }
         .post-card.new-year button { border-color: white; }
 
         /* --- СТИЛИ ДЛЯ ОТКРЫТОГО НОВОГОДНЕГО ПОСТА --- */
@@ -105,6 +106,7 @@
         }
 
         .post-meta { font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+        .post-id { font-family: monospace; color: #888; font-size: 0.75rem; margin-left: auto; opacity: 0.6; }
         .post-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
         
         .controls-area { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 10; }
@@ -134,6 +136,23 @@
         .badge-vip { background: linear-gradient(90deg, #9C27B0, #E040FB); color: white; border: 1px solid gold; box-shadow: 0 0 5px gold; }
         .temp-badge { color: orange; font-weight: bold; border: 1px solid orange; padding: 0 4px; font-size: 0.7rem; border-radius: 4px; }
         .admin-chat-badge { background: black; color: red; border: 1px solid red; font-weight: bold; padding: 2px 5px; font-size: 0.7rem; }
+
+        /* --- ПОИСК --- */
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid black;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+        }
+        body.dark-theme .search-bar {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        .search-bar::placeholder { opacity: 0.7; }
 
         /* --- ЛИПКИЙ ФУТЕР ДЛЯ КОММЕНТАРИЕВ --- */
         .sticky-comment-footer {
@@ -218,6 +237,9 @@
         <div id="feed-view">
             <h2>Лента обсуждений</h2>
             
+            <!-- ПОИСК -->
+            <input type="text" id="search-input" class="search-bar" placeholder="🔍 Найти пост по теме, автору или ID..." oninput="filterAndRenderPosts()">
+
             <div id="post-form-container" class="create-post-form hidden">
                 <h3 style="margin-top:0">Новый пост</h3>
                 <div style="margin-bottom:0.5rem; font-size:0.9rem;">
@@ -341,13 +363,14 @@
         let allUserRoles = {}; 
         let userDocUnsub = null;
         let editingPostId = null; 
+        let allPosts = []; // Хранилище постов для поиска
 
         // Загрузка ролей
         const rolesQuery = query(collection(db, "users"), where("role", "in", ["admin", "mod", "vip"]));
         onSnapshot(rolesQuery, (snapshot) => {
             allUserRoles = {};
             snapshot.forEach(doc => { allUserRoles[doc.id] = doc.data().role; });
-            if (currentUser) initPosts();
+            if (currentUser) filterAndRenderPosts();
         });
 
         onAuthStateChanged(auth, (user) => {
@@ -371,7 +394,7 @@
                         isMuted = false;
                     }
                     applyPermissions(); 
-                    initPosts(); 
+                    filterAndRenderPosts(); 
                 });
 
             } else {
@@ -381,7 +404,7 @@
                 document.getElementById('guest-msg').classList.remove('hidden');
                 document.getElementById('admin-panel').style.display = 'none';
                 document.getElementById('auth-link').innerText = "Вход";
-                document.getElementById('sticky-comment-footer').style.display = 'none'; // Скрываем футер если не в посте
+                document.getElementById('sticky-comment-footer').style.display = 'none';
                 initPosts();
             }
         });
@@ -504,94 +527,108 @@
             
             const q = query(collection(db, "posts"), orderBy("timestamp", "desc"));
             postsUnsub = onSnapshot(q, (snapshot) => {
-                const container = document.getElementById('posts-container');
-                container.innerHTML = "";
-                let posts = [];
+                allPosts = [];
                 currentPostsCache = {}; 
 
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const post = { id: doc.id, ...data };
-                    posts.push(post);
+                    allPosts.push(post);
                     currentPostsCache[doc.id] = post; 
                 });
 
-                posts.sort((a, b) => {
-                    if (a.isPinned && !b.isPinned) return -1;
-                    if (!a.isPinned && b.isPinned) return 1;
-                    return b.timestamp - a.timestamp;
-                });
+                filterAndRenderPosts();
+            });
+        }
 
-                if (posts.length === 0) { container.innerHTML = "<p>Пока нет постов.</p>"; return; }
+        window.filterAndRenderPosts = () => {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = "";
+            const searchText = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
 
-                const now = Date.now();
+            let posts = allPosts.filter(post => {
+                if (!searchText) return true;
+                const title = (post.title || "").toLowerCase();
+                const content = (post.content || "").toLowerCase();
+                const author = (post.author || "").toLowerCase();
+                const id = (post.id || "").toLowerCase();
+                return title.includes(searchText) || content.includes(searchText) || author.includes(searchText) || id.includes(searchText);
+            });
 
-                posts.forEach((post, index) => {
-                    if(post.isTemporary) {
-                        const postTime = post.timestamp ? post.timestamp.seconds * 1000 : now;
-                        if (now - postTime > 86400000) return;
+            posts.sort((a, b) => {
+                if (a.isPinned && !b.isPinned) return -1;
+                if (!a.isPinned && b.isPinned) return 1;
+                return b.timestamp - a.timestamp;
+            });
+
+            if (posts.length === 0) { container.innerHTML = "<p>Постов не найдено.</p>"; return; }
+
+            const now = Date.now();
+
+            posts.forEach((post, index) => {
+                if(post.isTemporary) {
+                    const postTime = post.timestamp ? post.timestamp.seconds * 1000 : now;
+                    if (now - postTime > 86400000) return;
+                }
+
+                if (post.isAdminChat && myRole !== 'admin' && myRole !== 'mod') return; 
+
+                if (index > 0 && index % 3 === 0) {
+                    const adDiv = document.createElement('div');
+                    adDiv.className = 'ad-container';
+                    let adHTML = '';
+                    if (index % 6 === 0) {
+                        adHTML = `<div style="width:100%; text-align:center"><div class="ad-placeholder-text">Реклама (Multiplex)</div><ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed" data-ad-client="ca-pub-3888025467972768" data-ad-slot="7944668033"></ins></div>`;
+                    } else {
+                        adHTML = `<div style="width:100%; text-align:center"><div class="ad-placeholder-text">Реклама Google</div><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3888025467972768" data-ad-slot="8379782309" data-ad-format="auto" data-full-width-responsive="true"></ins></div>`;
                     }
+                    adDiv.innerHTML = adHTML;
+                    container.appendChild(adDiv);
+                    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { }
+                }
 
-                    if (post.isAdminChat && myRole !== 'admin' && myRole !== 'mod') return; 
+                let classes = `post-card ${post.isPinned ? 'pinned' : ''} ${post.isAdminChat ? 'admin-chat' : ''} ${post.isNewYear ? 'new-year' : ''}`;
+                const div = document.createElement('div');
+                div.className = classes;
+                
+                if (post.color && post.color !== '#ffffff' && !post.isNewYear) {
+                    div.style.backgroundColor = post.color;
+                    div.style.borderColor = "black";
+                }
 
-                    if (index > 0 && index % 3 === 0) {
-                        const adDiv = document.createElement('div');
-                        adDiv.className = 'ad-container';
-                        let adHTML = '';
-                        if (index % 6 === 0) {
-                            adHTML = `<div style="width:100%; text-align:center"><div class="ad-placeholder-text">Реклама (Multiplex)</div><ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed" data-ad-client="ca-pub-3888025467972768" data-ad-slot="7944668033"></ins></div>`;
-                        } else {
-                            adHTML = `<div style="width:100%; text-align:center"><div class="ad-placeholder-text">Реклама Google</div><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3888025467972768" data-ad-slot="8379782309" data-ad-format="auto" data-full-width-responsive="true"></ins></div>`;
-                        }
-                        adDiv.innerHTML = adHTML;
-                        container.appendChild(adDiv);
-                        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { }
-                    }
+                let controlsHTML = "";
+                const isOwner = currentUser && currentUser.email === post.author;
+                const isStaff = myRole === 'admin' || myRole === 'mod';
 
-                    // CLASS LOGIC
-                    let classes = `post-card ${post.isPinned ? 'pinned' : ''} ${post.isAdminChat ? 'admin-chat' : ''} ${post.isNewYear ? 'new-year' : ''}`;
-                    const div = document.createElement('div');
-                    div.className = classes;
-                    
-                    if (post.color && post.color !== '#ffffff' && !post.isNewYear) {
-                        div.style.backgroundColor = post.color;
-                        div.style.borderColor = "black";
-                    }
+                if (isOwner || isStaff) {
+                    controlsHTML += `<button class="action-btn btn-edit" onclick="event.stopPropagation(); openEditModal('${post.id}')">EDIT</button>`;
+                }
 
-                    let controlsHTML = "";
-                    const isOwner = currentUser && currentUser.email === post.author;
-                    const isStaff = myRole === 'admin' || myRole === 'mod';
+                if (isStaff) {
+                    controlsHTML += `<button class="action-btn btn-up" onclick="event.stopPropagation(); bumpPost('${post.id}')">UP 🚀</button>`;
+                    controlsHTML += `<button class="action-btn btn-pin" onclick="event.stopPropagation(); togglePin('${post.id}', ${post.isPinned})">${post.isPinned ? 'Unpin' : '📌'}</button>`;
+                    controlsHTML += `<button class="action-btn btn-del" onclick="event.stopPropagation(); deletePost('${post.id}')">DEL</button>`;
+                }
 
-                    if (isOwner || isStaff) {
-                        controlsHTML += `<button class="action-btn btn-edit" onclick="event.stopPropagation(); openEditModal('${post.id}')">EDIT</button>`;
-                    }
+                if (controlsHTML) controlsHTML = `<div class="controls-area">${controlsHTML}</div>`;
 
-                    if (isStaff) {
-                        controlsHTML += `<button class="action-btn btn-up" onclick="event.stopPropagation(); bumpPost('${post.id}')">UP 🚀</button>`;
-                        controlsHTML += `<button class="action-btn btn-pin" onclick="event.stopPropagation(); togglePin('${post.id}', ${post.isPinned})">${post.isPinned ? 'Unpin' : '📌'}</button>`;
-                        controlsHTML += `<button class="action-btn btn-del" onclick="event.stopPropagation(); deletePost('${post.id}')">DEL</button>`;
-                    }
+                const date = post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString() : '...';
+                const titlePrefix = post.isPinned ? "📌 " : "";
+                const tempBadge = post.isTemporary ? '<span class="temp-badge">⏳ 24h</span>' : "";
+                const adminChatBadge = post.isAdminChat ? '<span class="admin-chat-badge">🔒 ADMIN CHAT</span>' : "";
+                const nyBadge = post.isNewYear ? '🎄 ' : '';
 
-                    if (controlsHTML) controlsHTML = `<div class="controls-area">${controlsHTML}</div>`;
-
-                    const date = post.timestamp ? new Date(post.timestamp.seconds * 1000).toLocaleDateString() : '...';
-                    const titlePrefix = post.isPinned ? "📌 " : "";
-                    const tempBadge = post.isTemporary ? '<span class="temp-badge">⏳ 24h</span>' : "";
-                    const adminChatBadge = post.isAdminChat ? '<span class="admin-chat-badge">🔒 ADMIN CHAT</span>' : "";
-                    const nyBadge = post.isNewYear ? '🎄 ' : '';
-
-                    const realRole = allUserRoles[post.author] || post.role || 'user';
-                    const roleBadge = getBadgeHTML(realRole);
-                    
-                    div.innerHTML = `
-                        ${controlsHTML}
-                        <div class="post-meta">Автор: ${escapeHtml(post.author)} ${roleBadge} • ${date} ${tempBadge} ${adminChatBadge}</div>
-                        <div class="post-title">${nyBadge}${titlePrefix}${escapeHtml(post.title)}</div>
-                        <div class="post-preview">${escapeHtml(post.content).substring(0, 100)}...</div>
-                    `;
-                    div.onclick = (e) => openPost(post.id, post);
-                    container.appendChild(div);
-                });
+                const realRole = allUserRoles[post.author] || post.role || 'user';
+                const roleBadge = getBadgeHTML(realRole);
+                
+                div.innerHTML = `
+                    ${controlsHTML}
+                    <div class="post-meta">Автор: ${escapeHtml(post.author)} ${roleBadge} <span class="post-id">#${post.id}</span> • ${date} ${tempBadge} ${adminChatBadge}</div>
+                    <div class="post-title">${nyBadge}${titlePrefix}${escapeHtml(post.title)}</div>
+                    <div class="post-preview">${escapeHtml(post.content).substring(0, 100)}...</div>
+                `;
+                div.onclick = (e) => openPost(post.id, post);
+                container.appendChild(div);
             });
         }
 
@@ -651,7 +688,6 @@
             document.getElementById('feed-view').classList.add('hidden');
             document.getElementById('post-detail-view').style.display = 'block';
             
-            // Если мы не забанены и залогинены, показываем липкий футер
             if(currentUser && !isBanned) {
                 document.getElementById('sticky-comment-footer').style.display = 'block';
             } else {
@@ -667,16 +703,15 @@
 
             const detailContainer = document.getElementById('detail-content');
             
-            // Сброс классов
             detailContainer.className = '';
-            detailContainer.style = ''; // Reset inline styles
+            detailContainer.style = ''; 
 
             if (postData.isNewYear) {
                 detailContainer.className = 'new-year-detail-container';
             }
 
             detailContainer.innerHTML = `
-                <div class="post-meta">Автор: ${escapeHtml(postData.author)} ${roleBadge} • ${date} ${tempBadge} ${adminChatBadge}</div>
+                <div class="post-meta">Автор: ${escapeHtml(postData.author)} ${roleBadge} <span class="post-id">#${postData.id}</span> • ${date} ${tempBadge} ${adminChatBadge}</div>
                 <h2>${escapeHtml(postData.title)}</h2>
                 <div style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(postData.content)}</div>
             `;
@@ -742,7 +777,6 @@
             if (!currentUser || !currentPostId) return;
             if(isBanned || isMuted) return alert("Вы не можете комментировать.");
             
-            // Берем текст из липкого футера
             const input = document.getElementById('sticky-comment-text');
             const text = input.value;
             if (!text) return;
