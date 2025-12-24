@@ -5,116 +5,634 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gav.manka - Посты</title>
     
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768" crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3888025467972768"
+     crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Merriweather:wght@300;700&family=Oswald:wght@500&family=Fira+Code&display=swap" rel="stylesheet">
 
     <style>
-        body { margin: 0; min-height: 100vh; background-color: white; color: black; font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif; padding: 1rem; transition: background-color 0.3s ease, color 0.3s ease; position: relative; padding-bottom: 80px; }
-        body.dark-theme { background-color: #121212; color: #e0e0e0; }
-        body.dark-theme nav { border-color: #e0e0e0; }
-        body.dark-theme nav a { color: #e0e0e0; }
-        body.dark-theme h1 a { color: #e0e0e0; }
-        body.dark-theme .post-card, body.dark-theme .comment-card { border-color: #444; background-color: #1a1a1a; }
-        body.dark-theme input, body.dark-theme textarea, body.dark-theme select { background-color: #222; color: #e0e0e0; border-color: #444; }
-        body.dark-theme .admin-panel, body.dark-theme .modal-content { background-color: #2a2a2a; border-color: #555; }
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-left: 1px solid #ccc;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+            border: 2px solid #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
         
-        @media (min-width: 768px) { body { padding: 3rem; padding-bottom: 80px; } }
+        body.dark-theme ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border-left: 1px solid #333;
+        }
+        body.dark-theme ::-webkit-scrollbar-thumb {
+            background: #555;
+            border: 2px solid #1a1a1a;
+        }
+        body.dark-theme ::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
 
-        .banner-wrapper { width: 100%; height: 250px; margin-bottom: 2rem; border: 2px solid black; overflow: hidden; position: relative; background-color: #f0f0f0; z-index: 1; }
-        .site-banner { width: 100%; height: 100%; object-fit: cover; display: block; }
-        @media (min-width: 768px) { .banner-wrapper { height: 350px; } }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-btn {
+            0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(211, 47, 47, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); }
+        }
 
-        h1 { font-size: 2.5rem; margin: 0 0 1.5rem 0; font-weight: 700; }
-        h1 a { text-decoration: none; color: black; }
-        nav { border-top: 2px solid black; border-bottom: 2px solid black; padding: 0.75rem 0; margin-bottom: 2.5rem; display: flex; gap: 2rem; align-items: center; }
-        nav a { font-size: 1.25rem; color: black; text-decoration: none; font-weight: 500; }
-        nav a:hover { text-decoration: underline; text-decoration-thickness: 2px; }
-        nav a.active { font-weight: bold; text-decoration: underline; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-color: white;
+            color: black;
+            font-family: 'Merriweather', serif;
+            padding: 1rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            position: relative;
+            padding-bottom: 100px;
+        }
+        body.dark-theme {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        
+        nav {
+            border-top: 3px solid black;
+            border-bottom: 1px solid black;
+            padding: 1rem 0;
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        body.dark-theme nav {
+            border-color: #e0e0e0;
+        }
+        nav a {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            color: inherit;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 5px 10px;
+            transition: all 0.2s;
+        }
+        nav a:hover, nav a.active {
+            background: black;
+            color: white;
+            transform: translateY(-2px);
+        }
+        body.dark-theme nav a:hover, body.dark-theme nav a.active {
+            background: white;
+            color: black;
+        }
 
-        .nav-btn-posts { color: #d32f2f !important; border: 2px solid #d32f2f; padding: 4px 10px; border-radius: 4px; animation: pulse-btn 2s infinite; display: inline-flex; align-items: center; gap: 5px; font-weight: bold; text-decoration: none !important; }
-        .nav-btn-posts:hover { background-color: #d32f2f; color: white !important; }
-        @keyframes pulse-btn { 0% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0.4); } 70% { box-shadow: 0 0 0 6px rgba(211, 47, 47, 0); } 100% { box-shadow: 0 0 0 0 rgba(211, 47, 47, 0); } }
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3rem;
+            margin: 0 0 1rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            animation: fadeInUp 0.5s ease-out;
+        }
 
-        .content { max-width: 50rem; position: relative; z-index: 10; }
-        .create-post-form { border: 2px solid black; padding: 1rem; margin-bottom: 2rem; background: rgba(255,255,255,0.05); }
-        input, textarea, select { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; font-family: inherit; border: 1px solid #ccc; box-sizing: border-box; background: transparent; }
-        button.btn-primary { background: black; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; font-family: inherit; font-weight: bold; }
-        button.btn-primary:hover { opacity: 0.8; }
-        body.dark-theme button.btn-primary { background: #e0e0e0; color: black; }
+        .banner-wrapper {
+            width: 100%;
+            height: 250px;
+            margin-bottom: 2rem;
+            border: 3px solid black;
+            overflow: hidden;
+            position: relative;
+            background-color: #f0f0f0;
+            z-index: 1;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        .site-banner {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        body.dark-theme .banner-wrapper {
+            border-color: #e0e0e0;
+            opacity: 0.9;
+        }
+        @media (min-width: 768px) {
+            .banner-wrapper { height: 350px; }
+        }
 
-        .post-card { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; cursor: pointer; transition: border-color 0.2s; position: relative; }
-        .post-card:hover { border-color: black; }
-        .post-card.pinned { border: 2px solid #d4af37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.3); } 
-        .post-card.admin-chat { border: 2px dashed red; opacity: 0.9; }
-        .post-card.new-year { background-color: #b71c1c; border: 3px solid #ffca28; color: #fff; box-shadow: 0 4px 15px rgba(183, 28, 28, 0.5); font-family: 'Lobster', cursive; }
-        .post-card.new-year .post-title { font-size: 1.8rem; text-shadow: 1px 1px 0 #000; }
-        .post-card.new-year .post-meta, .post-card.new-year .post-id { color: #ffecb3; }
+        .create-post-form {
+            border: 2px solid black;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.05);
+            animation: fadeInUp 0.7s ease-out;
+        }
+        body.dark-theme .create-post-form {
+            background: #1e1e1e;
+            border-color: #444;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-family: inherit;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            background: transparent;
+            color: inherit;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            border-color: black;
+            outline: none;
+        }
+        body.dark-theme input:focus, body.dark-theme textarea:focus {
+            border-color: white;
+        }
+        
+        button.btn-primary {
+            background: black;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        button.btn-primary:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        button.btn-primary:active {
+            transform: scale(0.95);
+        }
+        body.dark-theme button.btn-primary {
+            background: white;
+            color: black;
+        }
 
-        .new-year-detail-container { background: linear-gradient(135deg, #880e4f, #b71c1c); padding: 2rem; border-radius: 10px; border: 4px dashed #ffca28; color: white; position: relative; overflow: hidden; }
-        .new-year-detail-container h2 { font-family: 'Lobster', cursive; font-size: 3rem; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 2rem; }
-        .new-year-detail-container::before { content: "❄️ 🎄 ❄️"; position: absolute; top: 10px; left: 0; right: 0; text-align: center; font-size: 2rem; opacity: 0.5; }
-        .new-year-comment { background: rgba(255, 255, 255, 0.1); border: 1px solid #ffca28 !important; border-radius: 5px; margin-bottom: 10px; padding: 10px !important; color: #fff; }
+        .post-card {
+            border: 1px solid #ccc;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            transition: border-color 0.2s, transform 0.2s;
+            position: relative;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        body.dark-theme .post-card {
+            background: #1a1a1a;
+            border-color: #333;
+        }
+        .post-card:hover {
+            border-color: black;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        body.dark-theme .post-card:hover {
+            border-color: white;
+            box-shadow: 0 4px 8px rgba(255,255,255,0.1);
+        }
+        
+        .post-card.pinned {
+            border: 2px solid #d4af37;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        } 
+        .post-card.admin-chat {
+            border: 2px dashed red;
+            opacity: 0.9;
+            background: rgba(255,0,0,0.05);
+        }
+        
+        .post-card.new-year {
+            background-color: #b71c1c;
+            border: 3px solid #ffca28;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(183, 28, 28, 0.5);
+            font-family: 'Lobster', cursive;
+        }
+        .post-card.new-year .post-title {
+            font-size: 2rem;
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 10px;
+        }
+        .post-card.new-year .post-meta, .post-card.new-year .post-id {
+            color: #ffecb3;
+            font-family: 'Oswald', sans-serif;
+        }
 
-        .post-meta { font-size: 0.8rem; opacity: 0.7; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-        .post-id { font-family: monospace; color: #888; font-size: 0.75rem; margin-left: auto; opacity: 0.6; }
-        .post-title { font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
-        .controls-area { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 10; }
-        .action-btn { border: none; padding: 2px 6px; font-size: 0.7rem; cursor: pointer; color: white; font-weight: bold; }
-        .btn-del { background: red; } .btn-pin { background: gold; color: black; } .btn-edit { background: #2196F3; } .btn-up { background: #4CAF50; }
+        .post-card.system-announcement {
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            font-family: 'Fira Code', monospace;
+            box-shadow: 0 0 10px #0f0;
+        }
+        .post-card.system-announcement .post-title {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px dashed #0f0;
+            padding-bottom: 5px;
+        }
+        .post-card.system-announcement .post-meta {
+            color: #0f0;
+            opacity: 0.8;
+        }
+        .post-card.system-announcement .post-id {
+            color: #0f0;
+        }
 
-        .ad-container { margin: 1rem 0; padding: 1rem; background: #f9f9f9; border: 1px dashed #ccc; text-align: center; min-height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        body.dark-theme .ad-container { background: #222; border-color: #444; }
-        .ad-placeholder-text { font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; }
+        .new-year-detail-container {
+            background: linear-gradient(135deg, #880e4f, #b71c1c);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 4px dashed #ffca28;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s;
+        }
+        .new-year-detail-container h2 {
+            font-family: 'Lobster', cursive;
+            font-size: 3rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 2rem;
+        }
+        .new-year-detail-container::before {
+            content: "❄️ 🎄 ❄️";
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 2rem;
+            opacity: 0.5;
+        }
+        .new-year-comment {
+            background: #b71c1c;
+            border: 2px solid #ffca28 !important;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            padding: 10px !important;
+            color: #fff;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
 
-        .admin-panel { border: 2px solid red; padding: 1rem; margin-bottom: 2rem; background: #fff0f0; display: none; }
-        .admin-panel h3 { color: red; margin-top: 0; text-transform: uppercase; }
-        .user-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
+        .post-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-family: 'Oswald', sans-serif;
+        }
+        .post-id {
+            font-family: monospace;
+            color: #888;
+            font-size: 0.75rem;
+            margin-left: auto;
+            opacity: 0.6;
+        }
+        .post-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .controls-area {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+        .action-btn {
+            border: none;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            border-radius: 3px;
+            font-family: 'Oswald', sans-serif;
+            transition: transform 0.1s;
+        }
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+        .btn-del { background: red; }
+        .btn-pin { background: gold; color: black; }
+        .btn-edit { background: #2196F3; }
+        .btn-up { background: #4CAF50; }
 
-        #post-detail-view { display: none; }
-        .back-btn { display: inline-block; margin-bottom: 1rem; cursor: pointer; text-decoration: underline; }
+        .ad-container {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+            text-align: center;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease-in;
+        }
+        body.dark-theme .ad-container {
+            background: #222;
+            border-color: #444;
+        }
+        .ad-placeholder-text {
+            font-size: 0.7rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .admin-panel {
+            border: 2px solid red;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            background: #fff0f0;
+            display: none;
+            animation: fadeInUp 0.5s;
+        }
+        body.dark-theme .admin-panel {
+            background: #2a0000;
+            border-color: #ff0000;
+        }
+        .admin-panel h3 {
+            color: red;
+            margin-top: 0;
+            text-transform: uppercase;
+            font-family: 'Oswald', sans-serif;
+        }
+        .user-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        #post-detail-view {
+            display: none;
+            animation: fadeInUp 0.3s;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            text-decoration: underline;
+            font-family: 'Oswald', sans-serif;
+            transition: color 0.2s;
+        }
+        .back-btn:hover {
+            color: #555;
+        }
         .hidden { display: none !important; }
-        #theme-toggle { position: absolute; top: 1rem; right: 1rem; background: none; border: 2px solid black; padding: 0.5rem; cursor: pointer; z-index: 20; }
-        #snow-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
         
-        .role-badge { font-size: 0.7rem; padding: 2px 4px; border-radius: 4px; text-transform: uppercase; font-weight: bold; display: inline-block; vertical-align: middle; }
+        #theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #111;
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            z-index: 100;
+            border-radius: 50px;
+            font-family: 'Oswald', sans-serif;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        #theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        body.dark-theme #theme-toggle {
+            background: white;
+            color: black;
+        }
+        #snow-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+        
+        .role-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            font-weight: bold;
+            display: inline-block;
+            vertical-align: middle;
+            font-family: 'Oswald', sans-serif;
+        }
         .badge-admin { background: red; color: white; border: 1px solid darkred; }
         .badge-mod { background: blue; color: white; border: 1px solid darkblue; }
         .badge-vip { background: linear-gradient(90deg, #9C27B0, #E040FB); color: white; border: 1px solid gold; box-shadow: 0 0 5px gold; }
         .temp-badge { color: orange; font-weight: bold; border: 1px solid orange; padding: 0 4px; font-size: 0.7rem; border-radius: 4px; }
         .admin-chat-badge { background: black; color: red; border: 1px solid red; font-weight: bold; padding: 2px 5px; font-size: 0.7rem; }
+        .system-badge { background: #0f0; color: #000; font-family: 'Fira Code', monospace; padding: 2px 5px; font-weight: bold; font-size: 0.7rem; }
 
-        .search-bar { width: 100%; padding: 10px; margin-bottom: 20px; border: 2px solid black; font-family: inherit; background: rgba(255, 255, 255, 0.5); font-size: 1rem; }
-        body.dark-theme .search-bar { background: rgba(0, 0, 0, 0.2); border-color: #444; color: #e0e0e0; }
+        .search-bar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid black;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        .search-bar:focus {
+            background: white;
+        }
+        body.dark-theme .search-bar {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        body.dark-theme .search-bar:focus {
+            background: #222;
+        }
         .search-bar::placeholder { opacity: 0.7; }
 
-        .sticky-comment-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 2px solid black; padding: 10px; z-index: 50; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: none; }
-        body.dark-theme .sticky-comment-footer { background: #1a1a1a; border-top-color: #444; }
-        .comment-input-wrapper { max-width: 50rem; margin: 0 auto; display: flex; gap: 10px; }
-        .sticky-input { flex-grow: 1; margin-bottom: 0; height: 40px; resize: none; }
-        .sticky-btn { width: auto; margin-bottom: 0; height: 40px; padding: 0 20px; }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: white; padding: 2rem; border: 2px solid black; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .advanced-section { border-top: 1px solid #ccc; padding-top: 10px; margin-top: 10px; display: none; }
-
-        /* МУЗЫКАЛЬНЫЙ ПЛЕЕР */
-        #music-player {
-            position: fixed; bottom: 10px; left: 10px; z-index: 1000;
-            background: white; padding: 5px 10px; border: 2px solid black;
-            display: flex; align-items: center; gap: 10px;
-            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
-            font-family: monospace; font-size: 0.9rem;
+        .sticky-comment-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border-top: 2px solid black;
+            padding: 10px;
+            z-index: 998;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            animation: fadeInUp 0.3s ease-out;
         }
-        body.dark-theme #music-player { background: #222; border-color: #e0e0e0; box-shadow: 4px 4px 0px 0px #e0e0e0; color: #e0e0e0; }
-        #music-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0; color: inherit; }
+        body.dark-theme .sticky-comment-footer {
+            background: rgba(26, 26, 26, 0.95);
+            border-top-color: #444;
+        }
+        
+        .footer-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 0.8rem;
+        }
+        .close-footer-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .comment-input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        .sticky-input {
+            flex-grow: 1;
+            margin-bottom: 0;
+            height: 40px;
+            resize: none;
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+            background: transparent;
+            color: inherit;
+        }
+        .sticky-btn {
+            width: auto;
+            margin-bottom: 0;
+            height: 40px;
+            padding: 0 20px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border: 2px solid black;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeInUp 0.3s;
+        }
+        body.dark-theme .modal-content {
+            background: #1e1e1e;
+            border-color: #555;
+        }
+        .advanced-section {
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        #music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 5px 15px;
+            border: 2px solid black;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 3px 3px 0px 0px rgba(0,0,0,1);
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+        #music-player:hover {
+            transform: scale(1.05);
+        }
+        body.dark-theme #music-player {
+            background: #222;
+            border-color: #e0e0e0;
+            box-shadow: 3px 3px 0px 0px #e0e0e0;
+            color: #e0e0e0;
+        }
+        #music-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            color: inherit;
+        }
+        
+        .nav-btn-posts {
+            color: #d32f2f !important;
+            border: 2px solid #d32f2f;
+            padding: 2px 8px;
+        }
+        .nav-btn-posts:hover {
+            background: #d32f2f !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body>
     <button id="theme-toggle">☾ Тема</button>
     <canvas id="snow-canvas"></canvas>
 
-    <!-- МУЗЫКА -->
     <div id="music-player">
         <button id="music-btn" onclick="toggleMusic()">▶</button>
         <span id="track-name">music1.mp3</span>
@@ -122,14 +640,14 @@
     </div>
 
     <div class="banner-wrapper">
-        <img src="background.png" alt="Баннер" class="site-banner" onerror="this.style.display='none'; this.parentElement.style.display='flex'; this.parentElement.style.alignItems='center'; this.parentElement.style.justifyContent='center'; this.parentElement.innerHTML='<span style=\'font-size:2rem; opacity:0.3;\'>[Gav.manka]</span>';">
+        <img src="background.png" alt="Banner" class="site-banner" onerror="this.style.display='none';this.parentElement.style.display='flex';this.parentElement.style.alignItems='center';this.parentElement.style.justifyContent='center';this.parentElement.innerHTML='<span style=\'font-size:2rem;opacity:0.3\'>[Gav.manka]</span>'">
     </div>
 
     <h1><a href="index.html">Gav.manka</a></h1>
 
     <nav>
         <a href="index.html">Главная</a>
-        <a href="info.html">Информация</a>
+        <a href="info.html">Инфо</a>
         <a href="projects.html">Проекты</a>
         <a href="posts.html" class="active nav-btn-posts">Посты 🔥</a>
         <a href="auth.html" id="auth-link">Вход</a>
@@ -138,19 +656,18 @@
     <div class="content">
         
         <div id="admin-panel" class="admin-panel">
-            <h3>Управление (Admin/Mod)</h3>
-            <p style="font-size:0.9rem">Назначение прав и наказаний по Email.</p>
+            <h3>Админка</h3>
             <div class="user-row">
-                <input type="email" id="manage-email" placeholder="Email пользователя">
+                <input id="manage-email" placeholder="Email пользователя">
                 <select id="manage-action">
                     <option value="set_admin">Сделать Админом</option>
                     <option value="set_mod">Сделать Модером</option>
-                    <option value="set_vip">Сделать VIP (Фан)</option>
+                    <option value="set_vip">Сделать VIP</option>
                     <option value="ban">ЗАБАНИТЬ</option>
-                    <option value="mute">Замутить (только чтение)</option>
-                    <option value="clear">Снять все (Обычный юзер)</option>
+                    <option value="mute">Мут (только чтение)</option>
+                    <option value="clear">Снять права</option>
                 </select>
-                <button class="btn-primary" onclick="manageUser()">OK</button>
+                <button class="btn-primary" onclick="manageUser()">ОК</button>
             </div>
             <div id="admin-status-msg" style="font-size:0.8rem; color:green;"></div>
         </div>
@@ -158,30 +675,30 @@
         <div id="feed-view">
             <h2>Лента обсуждений</h2>
             
-            <input type="text" id="search-input" class="search-bar" placeholder="🔍 Найти пост по теме, автору или ID..." oninput="filterAndRenderPosts()">
+            <input type="text" id="search-input" class="search-bar" placeholder="🔍 Поиск..." oninput="filterAndRenderPosts()">
 
             <div id="post-form-container" class="create-post-form hidden">
-                <h3 style="margin-top:0">Новый пост</h3>
-                <div style="margin-bottom:0.5rem; font-size:0.9rem;">
-                    Автор: <span id="current-user-name" style="font-weight:bold">...</span>
-                    <span id="user-badges"></span>
-                </div>
-                <input type="text" id="new-post-title" placeholder="Заголовок темы">
-                <textarea id="new-post-content" rows="3" placeholder="О чем хотите рассказать?"></textarea>
+                <h3>Новый пост</h3>
+                <div style="margin-bottom:10px;font-size:0.9rem">Автор: <span id="current-user-name" style="font-weight:bold">...</span> <span id="user-badges"></span></div>
+                <input type="text" id="new-post-title" placeholder="Заголовок">
+                <textarea id="new-post-content" rows="3" placeholder="Мысли..."></textarea>
                 
                 <div style="margin-bottom: 1rem;">
                     <label style="cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 5px;">
                         <input type="checkbox" id="is-temporary"> 
-                        ⏳ Временное обсуждение (удалится через 24ч)
+                        ⏳ Временный (24ч)
                     </label>
                 </div>
 
                 <div id="admin-create-options" style="display:none; margin-bottom:1rem; border-top:1px dashed #ccc; padding-top:5px;">
                      <label style="cursor:pointer; color:red; font-weight:bold; font-size:0.9rem; margin-right: 15px;">
-                        <input type="checkbox" id="is-admin-chat"> 🔒 Чат для админов
+                        <input type="checkbox" id="is-admin-chat"> 🔒 Админ Чат
                     </label>
-                    <label style="cursor:pointer; color:#b71c1c; font-weight:bold; font-size:0.9rem; font-family:'Lobster', cursive;">
+                    <label style="cursor:pointer; color:#b71c1c; font-weight:bold; font-size:0.9rem; font-family:'Lobster', cursive; margin-right: 15px;">
                         <input type="checkbox" id="is-new-year"> 🎄 Новый Год!
+                    </label>
+                    <label style="cursor:pointer; color:#0f0; font-weight:bold; font-size:0.9rem; font-family:'Fira Code', monospace;">
+                        <input type="checkbox" id="is-system-announcement"> 📢 Системное
                     </label>
                 </div>
 
@@ -189,7 +706,7 @@
             </div>
 
             <div id="guest-msg" style="text-align:center; padding:1rem; border:1px dashed #777; margin-bottom:1rem;">
-                <a href="auth.html">Войдите</a>, чтобы писать.
+                <a href="auth.html" style="font-weight:bold">Войдите</a>, чтобы писать посты.
             </div>
 
             <div id="posts-container">
@@ -198,25 +715,28 @@
         </div>
 
         <div id="post-detail-view">
-            <span class="back-btn" onclick="closePost()">← Назад к ленте</span>
+            <span class="back-btn" onclick="closePost()">← Назад</span>
             <div id="detail-content"></div>
-            <div class="comment-section" style="margin-top:2rem; border-top:1px solid #ccc;">
+            <div class="comment-section" style="margin-top:2rem; border-top:1px solid #ccc; padding-top:1rem;">
                 <h3 id="comments-header">Комментарии</h3>
-                <div id="comments-list" style="margin-bottom: 50px;"></div>
+                <div id="comments-list" style="margin-bottom: 60px;"></div>
             </div>
         </div>
     </div>
 
     <div id="sticky-comment-footer" class="sticky-comment-footer">
+        <div class="footer-header">
+            <button class="close-footer-btn" onclick="hideCommentFooter()">[ЗАКРЫТЬ X]</button>
+        </div>
         <div class="comment-input-wrapper">
-            <input type="text" id="sticky-comment-text" class="sticky-input" placeholder="Написать комментарий..." autocomplete="off">
+            <input type="text" id="sticky-comment-text" class="sticky-input" placeholder="Комментарий..." autocomplete="off">
             <button class="btn-primary sticky-btn" onclick="addComment()">📤</button>
         </div>
     </div>
 
     <div id="edit-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <h3 style="margin-top:0">Редактировать пост</h3>
+            <h3 style="margin-top:0">Редактировать</h3>
             <label>Заголовок:</label>
             <input type="text" id="edit-title">
             <label>Текст:</label>
@@ -224,21 +744,14 @@
             
             <div id="advanced-edit-section" class="advanced-section">
                 <div style="margin-bottom: 10px;">
-                    <label style="font-weight:bold;">Цвет поста:</label>
+                    <label style="font-weight:bold;">Цвет:</label>
                     <input type="color" id="edit-color" style="width:50px; padding:0; height:30px; border:none; vertical-align:middle;">
                 </div>
-                <label style="display:block; margin-bottom:5px;">
-                    <input type="checkbox" id="edit-pinned"> 📌 Закрепить пост
-                </label>
-                <label style="display:block; margin-bottom:5px;">
-                    <input type="checkbox" id="edit-temporary"> ⏳ Временный (24ч)
-                </label>
-                <label style="display:block; margin-bottom:5px; color:red; font-weight:bold;">
-                    <input type="checkbox" id="edit-admin-chat"> 🔒 Чат для админов?
-                </label>
-                <label style="display:block; margin-bottom:10px; color:#b71c1c; font-weight:bold; font-family:'Lobster', cursive;">
-                    <input type="checkbox" id="edit-new-year"> 🎄 Новый Год?
-                </label>
+                <label style="display:block; margin-bottom:5px;"><input type="checkbox" id="edit-pinned"> 📌 Закрепить</label>
+                <label style="display:block; margin-bottom:5px;"><input type="checkbox" id="edit-temporary"> ⏳ Временный</label>
+                <label style="display:block; margin-bottom:5px; color:red;"><input type="checkbox" id="edit-admin-chat"> 🔒 Админ Чат</label>
+                <label style="display:block; margin-bottom:10px; color:#b71c1c; font-family:'Lobster'"><input type="checkbox" id="edit-new-year"> 🎄 Новый Год</label>
+                <label style="display:block; margin-bottom:10px; color:#0f0; font-family:'Fira Code'"><input type="checkbox" id="edit-system-announcement"> 📢 Системное</label>
             </div>
 
             <div style="display:flex; gap:10px; margin-top:1rem;">
@@ -384,10 +897,14 @@
             } catch(e) { alert("Ошибка: " + e.message); }
         };
 
+        window.hideCommentFooter = () => {
+            document.getElementById('sticky-comment-footer').style.display = 'none';
+        }
+
         let currentPostsCache = {}; 
 
         window.openEditModal = (postId) => {
-            const post = currentPostsCache[postId];
+            const post = allPosts.find(p => p.id === postId);
             if (!post) return;
 
             editingPostId = postId;
@@ -400,6 +917,7 @@
                 document.getElementById('edit-temporary').checked = post.isTemporary || false;
                 document.getElementById('edit-admin-chat').checked = post.isAdminChat || false;
                 document.getElementById('edit-new-year').checked = post.isNewYear || false;
+                document.getElementById('edit-system-announcement').checked = post.isSystem || false;
                 document.getElementById('edit-color').value = post.color || '#ffffff';
             } else {
                 document.getElementById('advanced-edit-section').style.display = 'none';
@@ -425,6 +943,7 @@
                 updates.isTemporary = document.getElementById('edit-temporary').checked;
                 updates.isAdminChat = document.getElementById('edit-admin-chat').checked;
                 updates.isNewYear = document.getElementById('edit-new-year').checked;
+                updates.isSystem = document.getElementById('edit-system-announcement').checked;
                 updates.color = document.getElementById('edit-color').value;
             }
 
@@ -494,7 +1013,6 @@
 
                 if (post.isAdminChat && myRole !== 'admin' && myRole !== 'mod') return; 
 
-                // РЕКЛАМА
                 if (index > 0 && index % 3 === 0) {
                     const adDiv = document.createElement('div');
                     adDiv.className = 'ad-container';
@@ -509,11 +1027,11 @@
                     try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) { }
                 }
 
-                let classes = `post-card ${post.isPinned ? 'pinned' : ''} ${post.isAdminChat ? 'admin-chat' : ''} ${post.isNewYear ? 'new-year' : ''}`;
+                let classes = `post-card ${post.isPinned ? 'pinned' : ''} ${post.isAdminChat ? 'admin-chat' : ''} ${post.isNewYear ? 'new-year' : ''} ${post.isSystem ? 'system-announcement' : ''}`;
                 const div = document.createElement('div');
                 div.className = classes;
                 
-                if (post.color && post.color !== '#ffffff' && !post.isNewYear) {
+                if (post.color && post.color !== '#ffffff' && !post.isNewYear && !post.isSystem) {
                     div.style.backgroundColor = post.color;
                     div.style.borderColor = "black";
                 }
@@ -539,13 +1057,14 @@
                 const tempBadge = post.isTemporary ? '<span class="temp-badge">⏳ 24h</span>' : "";
                 const adminChatBadge = post.isAdminChat ? '<span class="admin-chat-badge">🔒 ADMIN CHAT</span>' : "";
                 const nyBadge = post.isNewYear ? '🎄 ' : '';
+                const sysBadge = post.isSystem ? '<span class="system-badge">📢 SYSTEM</span>' : '';
 
                 const realRole = allUserRoles[post.author] || post.role || 'user';
                 const roleBadge = getBadgeHTML(realRole);
                 
                 div.innerHTML = `
                     ${controlsHTML}
-                    <div class="post-meta">Автор: ${escapeHtml(post.author)} ${roleBadge} <span class="post-id">#${post.id}</span> • ${date} ${tempBadge} ${adminChatBadge}</div>
+                    <div class="post-meta">Автор: ${escapeHtml(post.author)} ${roleBadge} <span class="post-id">#${post.id}</span> • ${date} ${tempBadge} ${adminChatBadge} ${sysBadge}</div>
                     <div class="post-title">${nyBadge}${titlePrefix}${escapeHtml(post.title)}</div>
                     <div class="post-preview">${escapeHtml(post.content).substring(0, 100)}...</div>
                 `;
@@ -563,9 +1082,11 @@
             
             let isAdminChat = false;
             let isNewYear = false;
+            let isSystem = false;
             if (myRole === 'admin' || myRole === 'mod') {
                 isAdminChat = document.getElementById('is-admin-chat').checked;
                 isNewYear = document.getElementById('is-new-year').checked;
+                if(document.getElementById('is-system-announcement')) isSystem = document.getElementById('is-system-announcement').checked;
             }
 
             if (!title || !content) return alert("Заполните поля!");
@@ -577,13 +1098,15 @@
                     isPinned: false, 
                     isTemporary: isTemporary,
                     isAdminChat: isAdminChat,
-                    isNewYear: isNewYear
+                    isNewYear: isNewYear,
+                    isSystem: isSystem
                 });
                 document.getElementById('new-post-title').value = "";
                 document.getElementById('new-post-content').value = "";
                 document.getElementById('is-temporary').checked = false;
                 if(document.getElementById('is-admin-chat')) document.getElementById('is-admin-chat').checked = false;
                 if(document.getElementById('is-new-year')) document.getElementById('is-new-year').checked = false;
+                if(document.getElementById('is-system-announcement')) document.getElementById('is-system-announcement').checked = false;
             } catch (e) { alert("Ошибка: " + e.message); }
         };
 
@@ -611,7 +1134,7 @@
             document.getElementById('post-detail-view').style.display = 'block';
             
             if(currentUser && !isBanned) {
-                document.getElementById('sticky-comment-footer').style.display = 'block';
+                document.getElementById('sticky-comment-footer').style.display = 'flex';
             } else {
                 document.getElementById('sticky-comment-footer').style.display = 'none';
             }
@@ -622,6 +1145,7 @@
             const roleBadge = getBadgeHTML(realRole);
             const tempBadge = postData.isTemporary ? '<span class="temp-badge">⏳ ИСЧЕЗНЕТ ЧЕРЕЗ 24 ЧАСА</span>' : "";
             const adminChatBadge = postData.isAdminChat ? '<span class="admin-chat-badge">🔒 ADMIN CHAT</span>' : "";
+            const sysBadge = postData.isSystem ? '<span class="system-badge">📢 SYSTEM ANNOUNCEMENT</span>' : "";
 
             const detailContainer = document.getElementById('detail-content');
             
@@ -631,14 +1155,22 @@
             if (postData.isNewYear) {
                 detailContainer.className = 'new-year-detail-container';
             }
+            
+            if (postData.isSystem) {
+                detailContainer.style.background = "#000";
+                detailContainer.style.color = "#0f0";
+                detailContainer.style.fontFamily = "'Fira Code', monospace";
+                detailContainer.style.padding = "20px";
+                detailContainer.style.border = "2px solid #0f0";
+            }
 
             detailContainer.innerHTML = `
-                <div class="post-meta">Автор: ${escapeHtml(postData.author)} ${roleBadge} <span class="post-id">#${postData.id}</span> • ${date} ${tempBadge} ${adminChatBadge}</div>
+                <div class="post-meta">Автор: ${escapeHtml(postData.author)} ${roleBadge} <span class="post-id">#${postData.id}</span> • ${date} ${tempBadge} ${adminChatBadge} ${sysBadge}</div>
                 <h2>${escapeHtml(postData.title)}</h2>
                 <div style="white-space: pre-wrap; line-height: 1.6;">${escapeHtml(postData.content)}</div>
             `;
             
-            if (postData.color && postData.color !== '#ffffff' && !postData.isNewYear) {
+            if (postData.color && postData.color !== '#ffffff' && !postData.isNewYear && !postData.isSystem) {
                 detailContainer.style.backgroundColor = postData.color;
                 detailContainer.style.padding = "10px";
                 detailContainer.style.borderRadius = "5px";
@@ -728,9 +1260,18 @@
         if (localStorage.getItem('theme') === 'dark') body.classList.add('dark-theme');
         toggleBtn.addEventListener('click', () => { body.classList.toggle('dark-theme'); localStorage.setItem('theme', body.classList.contains('dark-theme') ? 'dark' : 'light'); });
 
-        // МУЗЫКА
+        const canvas = document.getElementById('snow-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        function initSnow() { resize(); window.addEventListener('resize', resize); for(let i=0; i<60; i++) particles.push({x: Math.random()*width, y: Math.random()*height, r: Math.random()*3+1, d: Math.random()*50}); drawSnow(); }
+        let angle = 0;
+        function drawSnow() { ctx.clearRect(0, 0, width, height); ctx.fillStyle = body.classList.contains('dark-theme') ? "rgba(255,255,255,0.8)" : "rgba(100,100,100,0.3)"; ctx.beginPath(); for(let i=0; i<particles.length; i++) { let p = particles[i]; ctx.moveTo(p.x, p.y); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2, true); } ctx.fill(); updateSnow(); requestAnimationFrame(drawSnow); }
+        function updateSnow() { angle += 0.01; for(let i=0; i<particles.length; i++) { let p = particles[i]; p.y += Math.cos(angle+p.d) + 1 + p.r/2; p.x += Math.sin(angle)*2; if(p.x>width+5 || p.x<-5 || p.y>height) { if(i%3>0) particles[i] = {x: Math.random()*width, y: -10, r: p.r, d: p.d}; else { if(Math.sin(angle)>0) particles[i] = {x: -5, y: Math.random()*height, r: p.r, d: p.d}; else particles[i] = {x: width+5, y: Math.random()*height, r: p.r, d: p.d}; } } } }
+        initSnow();
+
         let currentTrack = 1;
-        const TOTAL_TRACKS = 3; 
+        const TOTAL_TRACKS = 3;
         const audio = document.getElementById('audio-element');
         const mBtn = document.getElementById('music-btn');
         const mLabel = document.getElementById('track-name');
@@ -747,16 +1288,6 @@
             audio.play();
             mBtn.innerText = "⏸";
         };
-
-        const canvas = document.getElementById('snow-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [];
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        function initSnow() { resize(); window.addEventListener('resize', resize); for(let i=0; i<60; i++) particles.push({x: Math.random()*width, y: Math.random()*height, r: Math.random()*3+1, d: Math.random()*50}); drawSnow(); }
-        let angle = 0;
-        function drawSnow() { ctx.clearRect(0, 0, width, height); ctx.fillStyle = body.classList.contains('dark-theme') ? "rgba(255,255,255,0.8)" : "rgba(100,100,100,0.3)"; ctx.beginPath(); for(let i=0; i<particles.length; i++) { let p = particles[i]; ctx.moveTo(p.x, p.y); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2, true); } ctx.fill(); updateSnow(); requestAnimationFrame(drawSnow); }
-        function updateSnow() { angle += 0.01; for(let i=0; i<particles.length; i++) { let p = particles[i]; p.y += Math.cos(angle+p.d) + 1 + p.r/2; p.x += Math.sin(angle)*2; if(p.x>width+5 || p.x<-5 || p.y>height) { if(i%3>0) particles[i] = {x: Math.random()*width, y: -10, r: p.r, d: p.d}; else { if(Math.sin(angle)>0) particles[i] = {x: -5, y: Math.random()*height, r: p.r, d: p.d}; else particles[i] = {x: width+5, y: Math.random()*height, r: p.r, d: p.d}; } } } }
-        initSnow();
     </script>
 </body>
 </html>
